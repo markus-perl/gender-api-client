@@ -20,6 +20,10 @@ Installation
 my-project$ composer require gender-api/client
 ```
 
+API-Key
+-----------
+Get a free API key here: <https://gender-api.com/en/account>
+
 PHPUnit
 ------------
 
