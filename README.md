@@ -3,7 +3,7 @@ Gender-API.com PHP Client
 
 About
 ------------
-PHP client for the https://Gender-API.com API.
+PHP client for the Gender-API.com API.
 
 Homepage: <https://gender-api.com>
 
