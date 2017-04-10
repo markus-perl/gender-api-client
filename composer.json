@@ -1,0 +1,19 @@
+{
+  "name": "gender-api/client",
+  "description": "An easy to use API client for Gender-API.com",
+  "keywords": ["gender api","genderize", "gender of names"],
+  "homepage": "https://github.com/markus-perl/gender-api-client",
+  "license": "MIT",
+  "autoload": {
+    "psr-0" : {
+      "GenderApi" : "src",
+      "GenderApiTest" : "tests"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7"
+  },
+  "require": {
+    "php": ">=5.6.0"
+  }
+}
