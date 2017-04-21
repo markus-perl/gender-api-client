@@ -28,12 +28,14 @@ class MultipleNamesTest extends TestCase
                 $this->assertEquals('bibi', $name->getName());
                 $this->assertEquals(6715, $name->getSamples());
                 $this->assertEquals(62, $name->getAccuracy());
+                $this->assertEquals(null, $name->getCountry());
             }
 
             if ($key == 1) {
                 $this->assertEquals('jenniffer', $name->getName());
                 $this->assertEquals(793, $name->getSamples());
                 $this->assertEquals(99, $name->getAccuracy());
+                $this->assertEquals(null, $name->getCountry());
             }
 
             $this->assertEquals('female', $name->getGender());

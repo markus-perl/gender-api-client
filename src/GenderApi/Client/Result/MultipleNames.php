@@ -87,7 +87,7 @@ class MultipleNames extends AbstractResult implements \Iterator, \Countable
         if (isset($response->result) && is_array($response->result)) {
             foreach ($response->result as $name) {
 
-                if ($response->country) {
+                if (isset($response->country)) {
                     $name->country = $response->country;
                 }
 
