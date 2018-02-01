@@ -32,8 +32,7 @@ class MultipleNamesTest extends TestCase
         $this->assertEquals(2, count($result));
 
         foreach ($result as $key => $name) {
-            if ($key == 0) {
-                $this->assertEquals('elisa', $name->getName());
+            if ($name->getName() == 'elisa') {
                 $this->assertEquals('female', $name->getGender());
 
                 if ($this->doMock) {
@@ -41,8 +40,7 @@ class MultipleNamesTest extends TestCase
                     $this->assertEquals(98, $name->getAccuracy());
                 }
             }
-            if ($key == 1) {
-                $this->assertEquals('markus', $name->getName());
+            if ($name->getName() == 'markus') {
                 $this->assertEquals('male', $name->getGender());
 
                 if ($this->doMock) {
@@ -71,8 +69,7 @@ class MultipleNamesTest extends TestCase
         $this->assertEquals(2, count($result));
 
         foreach ($result as $key => $name) {
-            if ($key == 0) {
-                $this->assertEquals('elisa', $name->getName());
+            if ($name->getName() == 'elisa') {
                 $this->assertEquals('female', $name->getGender());
                 $this->assertEquals('DE', $name->getCountry());
 
@@ -81,8 +78,7 @@ class MultipleNamesTest extends TestCase
                     $this->assertEquals(97, $name->getAccuracy());
                 }
             }
-            if ($key == 1) {
-                $this->assertEquals('markus', $name->getName());
+            if ($name->getName() == 'markus') {
                 $this->assertEquals('male', $name->getGender());
                 $this->assertEquals('DE', $name->getCountry());
 
