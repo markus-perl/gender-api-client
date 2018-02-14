@@ -53,7 +53,12 @@ class Client
         }
 
         $this->countryList = new CountryList();
-        $this->downloader = new Downloader\FileGetContents();
+
+        if (function_exists('curl_setopt')) {
+            $this->downloader = new Downloader\Curl();
+        } else {
+            $this->downloader = new Downloader\FileGetContents();
+        }
     }
 
     /**

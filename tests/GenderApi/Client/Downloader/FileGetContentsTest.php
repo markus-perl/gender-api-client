@@ -35,12 +35,10 @@ class FileGetContentsTest extends TestCase
         $fgt = new FileGetContents();
 
         if ($this->doMock) {
-            $response = $fgt->download(__DIR__ . '/invalid.json');
+            $fgt->download(__DIR__ . '/invalid.json');
         } else {
-            $response = $fgt->download('https://gender-api.com/invalid?name=markus&key=' . $this->apiKey);
+            $fgt->download('https://gender-api.com/invalid?name=markus&key=' . $this->apiKey);
         }
-
-        $this->assertContains('gender":"male"', $response);
     }
 
 }
