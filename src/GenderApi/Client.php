@@ -39,11 +39,17 @@ class Client
      * Client constructor.
      *
      * @param null|string $apiKey
+     * @throws InvalidParameterException
      */
     public function __construct($apiKey = null)
     {
         if ($apiKey) {
             $this->setApiKey($apiKey);
+        }
+
+        $envApiUrl = getenv('APIURL');
+        if ($envApiUrl) {
+            $this->setApiUrl($envApiUrl);
         }
 
         $this->countryList = new CountryList();
@@ -119,6 +125,8 @@ class Client
      * @param null|string $ipAddress
      * @param null|string $locale
      * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\SingleName
      */
     protected function queryByFirstName($firstName, $country = null, $ipAddress = null, $locale = null)
@@ -148,6 +156,9 @@ class Client
 
     /**
      * @param string $firstName
+     * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\SingleName
      */
     public function getByFirstName($firstName)
@@ -158,6 +169,9 @@ class Client
     /**
      * @param string $firstName
      * @param string $country ISO 3166-2 country code. Example: 'US'
+     * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\SingleName
      */
     public function getByFirstNameAndCountry($firstName, $country)
@@ -168,6 +182,9 @@ class Client
     /**
      * @param string $firstName
      * @param string $ipAddress
+     * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\SingleName
      */
     public function getByFirstNameAndClientIpAddress($firstName, $ipAddress)
@@ -178,6 +195,9 @@ class Client
     /**
      * @param string $firstName
      * @param string $locale
+     * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\SingleName
      */
     public function getByFirstNameAndLocale($firstName, $locale)
@@ -190,6 +210,8 @@ class Client
      * @param null $country
      * @return Result\MultipleNames
      * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      */
     public function getByMultipleNames(array $firstNames)
     {
@@ -201,6 +223,8 @@ class Client
      * @param $country
      * @return Result\MultipleNames
      * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      */
     public function getByMultipleNamesAndCountry(array $firstNames, $country)
     {
@@ -230,6 +254,8 @@ class Client
      * @param bool $strict
      * @return Result\Split
      * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      */
     public function getByFirstNameAndLastName($firstAndLastName, $strict = false)
     {
@@ -242,6 +268,8 @@ class Client
      * @param bool $strict
      * @return Result\Split
      * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      */
     public function getByFirstNameAndLastNameAndCountry($firstAndLastName, $country, $strict = false)
     {
@@ -271,6 +299,9 @@ class Client
 
     /**
      * @param string $emailAddress
+     * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\EmailAddress
      */
     public function getByEmailAddress($emailAddress)
@@ -283,6 +314,8 @@ class Client
      * @param string $country
      * @return Result\EmailAddress
      * @throws InvalidParameterException
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      */
     public function getByEmailAddressAndCountry($emailAddress, $country)
     {
@@ -307,6 +340,8 @@ class Client
     }
 
     /**
+     * @throws Client\RuntimeException
+     * @throws Client\ApiException
      * @return Result\Stats
      */
     public function getStats()
@@ -379,6 +414,7 @@ class Client
     }
 
     /**
+     * @throws Client\RuntimeException
      * @return Query
      */
     protected function createQuery()

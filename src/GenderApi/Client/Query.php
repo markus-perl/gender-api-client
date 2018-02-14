@@ -7,6 +7,7 @@ use GenderApi\Client\Result\AbstractResult;
 
 /**
  * Class Query
+ *
  * @package GenderApi\Client
  */
 class Query
@@ -39,9 +40,9 @@ class Query
      */
     public function __construct($apiUrl, AbstractDownloader $downloader, $method = 'get')
     {
-        $this->apiUrl = $apiUrl;
+        $this->apiUrl     = $apiUrl;
         $this->downloader = $downloader;
-        $this->method = 'get';
+        $this->method     = 'get';
     }
 
     /**
@@ -79,31 +80,32 @@ class Query
 
     /**
      * @param AbstractResult $result
+     *
      * @return AbstractResult
-     * @throws ApiException
      * @throws RuntimeException
+     * @throws ApiException
      */
     public function execute(AbstractResult $result)
     {
-        $query = http_build_query(
-            $this->getParams()
-        );
+            $query = http_build_query(
+                $this->getParams()
+            );
 
-        $url = $this->apiUrl . $this->getMethod() . '?' . $query;
-        $response = $this->downloader->download($url);
+            $url      = $this->apiUrl . $this->getMethod() . '?' . $query;
+            $response = $this->downloader->download($url);
 
-        $responseJson = json_decode($response);
-        if (!$responseJson) {
-            throw new RuntimeException('Failed to parse Response. Invalid Json: ' . $response);
-        }
+            $responseJson = json_decode($response);
+            if ( ! $responseJson) {
+                throw new RuntimeException('Failed to parse Response. Invalid Json: ' . $response);
+            }
 
-        if (isset($responseJson->errno)) {
-            throw new ApiException($responseJson->errmsg, $responseJson->errno);
-        }
+            if (isset($responseJson->errno)) {
+                throw new ApiException($responseJson->errmsg, $responseJson->errno);
+            }
 
-        $result->parseResponse($responseJson);
-        $result->setQueryUrl($url);
+            $result->parseResponse($responseJson);
+            $result->setQueryUrl($url);
 
-        return $result;
+            return $result;
     }
 }
