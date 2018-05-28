@@ -248,6 +248,7 @@ class Client
         $query = $this->createQuery();
         $query->addParam('name', implode(';', $firstNames));
         $query->addParam('country', $countryCode);
+        $query->addParam('multi', 'true');
 
         $result = new Result\MultipleNames();
         $query->execute($result);

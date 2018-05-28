@@ -30,24 +30,31 @@ class MultipleNamesTest extends TestCase
 
         $result = $genderApiClient->getByMultipleNames(array('Markus', 'Elisa'));
         $this->assertEquals(2, count($result));
+        $matches = 0;
 
         foreach ($result as $key => $name) {
-            if ($name->getName() == 'elisa') {
+            if ($name->getName() == 'Elisa') {
                 $this->assertEquals('female', $name->getGender());
+                $matches++;
 
                 if ($this->doMock) {
                     $this->assertEquals(32786, $name->getSamples());
                     $this->assertEquals(98, $name->getAccuracy());
                 }
             }
-            if ($name->getName() == 'markus') {
+            if ($name->getName() == 'Markus') {
                 $this->assertEquals('male', $name->getGender());
+                $matches++;
 
                 if ($this->doMock) {
                     $this->assertEquals(26494, $name->getSamples());
                     $this->assertEquals(99, $name->getAccuracy());
                 }
             }
+        }
+
+        if ($matches !== 2) {
+            $this->fail('names not found');
         }
     }
 
