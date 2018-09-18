@@ -32,6 +32,10 @@ class Curl extends AbstractDownloader
             curl_setopt($this->curl, CURLOPT_TIMEOUT, 5);
             curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, 5);
             curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+            if ($this->useProxy) {
+                curl_setopt($this->curl, CURLOPT_PROXY, $this->proxyHost);
+                curl_setopt($this->curl, CURLOPT_PROXYPORT, $this->proxyPort);
+            }
         }
 
         curl_setopt($this->curl, CURLOPT_URL, $url);
@@ -45,5 +49,20 @@ class Curl extends AbstractDownloader
         }
 
         return $response;
+    }
+
+    /**
+     * reset proxy settings for current resource
+     */
+    public function resetProxy()
+    {
+        if ($this->curl) {
+            if ($this->useProxy) {
+                curl_setopt($this->curl, CURLOPT_PROXY, $this->proxyHost);
+                curl_setopt($this->curl, CURLOPT_PROXYPORT, $this->proxyPort);
+            } else {
+                curl_setopt($this->curl, CURLOPT_PROXY, '');
+            }
+        }
     }
 }

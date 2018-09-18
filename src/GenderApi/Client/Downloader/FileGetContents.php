@@ -25,6 +25,11 @@ class FileGetContents extends AbstractDownloader
                 ),
                 'timeout' => 5
             ));
+        if ($this->useProxy) {
+            $options['http']['proxy'] = 'tcp://'.$this->proxyHost.':'.$this->proxyPort;
+            $options['http']['request_fulluri'] = true;
+        }
+
         $context = stream_context_create($options);
 
         $response = @file_get_contents($url, false, $context);
@@ -36,5 +41,13 @@ class FileGetContents extends AbstractDownloader
         }
 
         return $response;
+    }
+
+    /**
+     * reset proxy settings for current resource
+     */
+    public function resetProxy()
+    {
+        // empty because not required
     }
 }

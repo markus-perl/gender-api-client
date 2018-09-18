@@ -125,6 +125,17 @@ class Client
     }
 
     /**
+     * @param bool $enabled
+     * @param string $host
+     * @param int $port
+     * @throws InvalidParameterException
+     */
+    public function setProxy($enabled, $host, $port)
+    {
+        $this->downloader->setProxy($enabled, $host, $port);
+    }
+
+    /**
      * @param $firstName
      * @param null|string $country
      * @param null|string $ipAddress
