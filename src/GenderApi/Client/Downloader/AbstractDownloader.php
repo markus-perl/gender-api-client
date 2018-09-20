@@ -11,10 +11,6 @@ use GenderApi\Client\InvalidParameterException;
  */
 abstract class AbstractDownloader
 {
-    /**
-     * @var bool
-     */
-    protected $useProxy = false;
 
     /**
      * @var string
