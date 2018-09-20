@@ -125,14 +125,15 @@ class Client
     }
 
     /**
-     * @param bool $enabled
-     * @param string $host
-     * @param int $port
+     * Set a proxy server for every request.
+     *
+     * @param string|null $host
+     * @param int|null $port
      * @throws InvalidParameterException
      */
-    public function setProxy($enabled, $host, $port)
+    public function setProxy($host = null, $port = null)
     {
-        $this->downloader->setProxy($enabled, $host, $port);
+        $this->downloader->setProxy($host, $port);
     }
 
     /**
@@ -307,7 +308,7 @@ class Client
         $query = $this->createQuery();
         $query->addParam('split', $firstAndLastName);
         $query->addParam('country', $countryCode);
-        $query->addParam('strict', (int) $strict);
+        $query->addParam('strict', (int)$strict);
 
         $result = new Result\Split();
         $query->execute($result);

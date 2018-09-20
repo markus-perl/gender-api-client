@@ -2,6 +2,8 @@
 
 namespace GenderApi\Client\Downloader;
 
+use GenderApi\Client\InvalidParameterException;
+
 /**
  * Class Curl
  *
@@ -23,7 +25,7 @@ class Curl extends AbstractDownloader
      */
     public function download($url)
     {
-        if ( ! $this->curl) {
+        if (!$this->curl) {
             $this->curl = curl_init();
             curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
                 'User-Agent: gender-api-client/1.0',
@@ -32,7 +34,8 @@ class Curl extends AbstractDownloader
             curl_setopt($this->curl, CURLOPT_TIMEOUT, 5);
             curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, 5);
             curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-            if ($this->useProxy) {
+
+            if ($this->proxyHost) {
                 curl_setopt($this->curl, CURLOPT_PROXY, $this->proxyHost);
                 curl_setopt($this->curl, CURLOPT_PROXYPORT, $this->proxyPort);
             }
@@ -52,12 +55,18 @@ class Curl extends AbstractDownloader
     }
 
     /**
-     * reset proxy settings for current resource
+     * Set a proxy server for every request.
+     *
+     * @param string|null $host
+     * @param int|null $port
+     * @throws InvalidParameterException
      */
-    public function resetProxy()
+    public function setProxy($host = null, $port = null)
     {
+        parent::setProxy($host, $port);
+
         if ($this->curl) {
-            if ($this->useProxy) {
+            if ($this->proxyHost) {
                 curl_setopt($this->curl, CURLOPT_PROXY, $this->proxyHost);
                 curl_setopt($this->curl, CURLOPT_PROXYPORT, $this->proxyPort);
             } else {
@@ -65,4 +74,5 @@ class Curl extends AbstractDownloader
             }
         }
     }
+
 }

@@ -33,20 +33,18 @@ abstract class AbstractDownloader
     abstract public function download($url);
 
     /**
-     * reset proxy settings for current resource
-     */
-    abstract public function resetProxy();
-
-    /**
-     * @param bool $enabled
-     * @param string $host
-     * @param int $port
+     * Set a proxy server for every request.
+     *
+     * @param string|null $host
+     * @param int|null $port
      * @throws InvalidParameterException
      */
-    public function setProxy($enabled, $host, $port)
+    public function setProxy($host = null, $port = null)
     {
-        if (!is_bool($enabled)) {
-            throw new InvalidParameterException('Invalid Parameter for $enabled. Bool expected, ' . gettype($enabled) . ' given.');
+        if (!$host) {
+            $this->proxyHost = null;
+            $this->proxyPort = null;
+            return;
         }
 
         if (!is_string($host)) {
@@ -57,9 +55,19 @@ abstract class AbstractDownloader
             throw new InvalidParameterException('Invalid Parameter for $port. Int expected, ' . gettype($port) . ' given.');
         }
 
-        $this->useProxy = !!$enabled;
         $this->proxyHost = $host;
         $this->proxyPort = $port;
-        $this->resetProxy();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProxy()
+    {
+        if ($this->proxyHost) {
+            return $this->proxyHost . ':' . $this->proxyPort;
+        }
+
+        return null;
     }
 }

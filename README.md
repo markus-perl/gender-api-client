@@ -62,7 +62,7 @@ use GenderApi\Client as GenderApiClient;
 try {
 
     $apiClient = new GenderApiClient('insert your API key');
-    
+    ````
     // Get gender by first name and country
     $name = $apiClient->getByFirstNameAndCountry('elisabeth', 'US');
 
@@ -168,4 +168,14 @@ try {
     // See https://gender-api.com/en/api-docs/error-codes
     echo 'Exception: ' . $e->getMessage();
 }
+```
+
+Proxy
+---------
+If you need a proxy server to access the Internet in your company, you can set one via the setProxy command.
+```php
+use GenderApi\Client as GenderApiClient;
+
+$apiClient = new GenderApiClient('insert your API key');
+$apiClient->setProxy('localhost', 3128);
 ```

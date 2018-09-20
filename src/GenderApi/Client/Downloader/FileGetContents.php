@@ -10,9 +10,11 @@ class FileGetContents extends AbstractDownloader
 {
 
     /**
-     * @param string $url
-     * @return bool|string
-     * @throws NetworkErrorException
+     * Set a proxy server for every request.
+     *
+     * @param string|null $host
+     * @param int|null $port
+     * @throws InvalidParameterException
      */
     public function download($url)
     {
@@ -25,7 +27,8 @@ class FileGetContents extends AbstractDownloader
                 ),
                 'timeout' => 5
             ));
-        if ($this->useProxy) {
+
+        if ($this->proxyHost) {
             $options['http']['proxy'] = 'tcp://'.$this->proxyHost.':'.$this->proxyPort;
             $options['http']['request_fulluri'] = true;
         }
@@ -41,13 +44,5 @@ class FileGetContents extends AbstractDownloader
         }
 
         return $response;
-    }
-
-    /**
-     * reset proxy settings for current resource
-     */
-    public function resetProxy()
-    {
-        // empty because not required
     }
 }

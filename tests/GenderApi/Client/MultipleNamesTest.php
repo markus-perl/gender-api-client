@@ -13,18 +13,19 @@ use GenderApiTest\TestCase;
 class MultipleNamesTest extends TestCase
 {
 
+
     /**
      *
      */
     public function testGetByFirstNameWithoutCountry()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
             $downloader->method('download')
-                ->willReturn('{"name":"markus;elisa","result":[{"name":"elisa","gender":"female","samples":32786,"accuracy":98},'
-                    . '{"name":"markus","gender":"male","samples":26494,"accuracy":99}],"duration":"38ms"}');
+                ->willReturn('{"name":"markus;elisa","result":[{"name":"Elisa","gender":"female","samples":32786,"accuracy":98},'
+                    . '{"name":"Markus","gender":"male","samples":26494,"accuracy":99}],"duration":"38ms"}');
             $genderApiClient->setDownloader($downloader);
         }
 
@@ -32,7 +33,9 @@ class MultipleNamesTest extends TestCase
         $this->assertEquals(2, count($result));
         $matches = 0;
 
+
         foreach ($result as $key => $name) {
+
             if ($name->getName() == 'Elisa') {
                 $this->assertEquals('female', $name->getGender());
                 $matches++;
@@ -54,7 +57,7 @@ class MultipleNamesTest extends TestCase
         }
 
         if ($matches !== 2) {
-            $this->fail('names not found');
+            $this->fail('names not found: ' . print_r($result, true));
         }
     }
 
@@ -63,7 +66,7 @@ class MultipleNamesTest extends TestCase
      */
     public function testGetByFirstNameWithCountry()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);

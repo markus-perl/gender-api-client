@@ -38,4 +38,12 @@ class CurlTest extends TestCase
         }
     }
 
+    public function testSetProxy()
+    {
+        $curl = new Curl();
+
+        $curl->setProxy('127.0.0.1', 3128);
+        $this->assertEquals('127.0.0.1:3128', $curl->getProxy());
+    }
+
 }
