@@ -18,7 +18,7 @@ class StatsTest extends TestCase
      */
     public function testGetStats()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);

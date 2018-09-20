@@ -18,7 +18,7 @@ class EmailAddressTest extends TestCase
      */
     public function testGetByEmailAddressWithoutCountry()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             /* @var FileGetContents|\PHPUnit_Framework_MockObject_MockObject $downloader */
@@ -48,7 +48,7 @@ class EmailAddressTest extends TestCase
      */
     public function testGetByEmailAddressWithCountry()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);

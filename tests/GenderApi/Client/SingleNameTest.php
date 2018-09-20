@@ -18,7 +18,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetByFirstNameWithoutCountry()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -43,7 +43,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetByFirstNameWithCountry()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -69,7 +69,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetByFirstNameWithLocale()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -96,7 +96,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetByFirstNameWithInvalidLocale()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -113,7 +113,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetByFirstNameWithIpAddress()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -140,7 +140,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetByFirstNameWithCountryName()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -166,7 +166,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetInvalidName()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -192,7 +192,7 @@ class SingleNameTest extends TestCase
      */
     public function testGetInvalidCountryCode()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
@@ -217,7 +217,7 @@ class SingleNameTest extends TestCase
      */
     public function testServerNotReachable()
     {
-        $genderApiClient = new Client($this->apiKey);
+        $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
