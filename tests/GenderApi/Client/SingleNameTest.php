@@ -92,7 +92,7 @@ class SingleNameTest extends TestCase
     }
 
     /**
-     * @expectedException \GenderApi\Client\InvalidParameterException
+     * @expectedException \GenderApi\Client\InvalidArgumentException
      */
     public function testGetByFirstNameWithInvalidLocale()
     {
@@ -187,8 +187,8 @@ class SingleNameTest extends TestCase
     }
 
     /**
-     * @expectedException \GenderApi\Client\InvalidParameterException
-     * @expectedExceptionMessage Invalid Parameter for $country. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.
+     * @expectedException \GenderApi\Client\InvalidArgumentException
+     * @expectedExceptionMessage Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.
      */
     public function testGetInvalidCountryCode()
     {

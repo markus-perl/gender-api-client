@@ -2,7 +2,7 @@
 
 namespace GenderApi\Client\Downloader;
 
-use GenderApi\Client\InvalidParameterException;
+use \GenderApi\Client\InvalidArgumentException;
 
 /**
  * Class AbstractDownloader
@@ -33,7 +33,7 @@ abstract class AbstractDownloader
      *
      * @param string|null $host
      * @param int|null $port
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     public function setProxy($host = null, $port = null)
     {
@@ -44,11 +44,11 @@ abstract class AbstractDownloader
         }
 
         if (!is_string($host)) {
-            throw new InvalidParameterException('Invalid Parameter for $host. String expected, ' . gettype($host) . ' given.');
+            throw new InvalidArgumentException('host expects a string, ' . gettype($host) . ' given.');
         }
 
         if (!is_int($port)) {
-            throw new InvalidParameterException('Invalid Parameter for $port. Int expected, ' . gettype($port) . ' given.');
+            throw new InvalidArgumentException('port expects an integer, ' . gettype($port) . ' given.');
         }
 
         $this->proxyHost = $host;

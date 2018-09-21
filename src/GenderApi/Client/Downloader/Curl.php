@@ -2,7 +2,7 @@
 
 namespace GenderApi\Client\Downloader;
 
-use GenderApi\Client\InvalidParameterException;
+use \GenderApi\Client\InvalidArgumentException;
 
 /**
  * Class Curl
@@ -59,7 +59,7 @@ class Curl extends AbstractDownloader
      *
      * @param string|null $host
      * @param int|null $port
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     public function setProxy($host = null, $port = null)
     {

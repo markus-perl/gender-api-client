@@ -14,7 +14,7 @@ class FileGetContents extends AbstractDownloader
      *
      * @param string|null $host
      * @param int|null $port
-     * @throws InvalidParameterException
+     * @throws NetworkErrorException
      */
     public function download($url)
     {

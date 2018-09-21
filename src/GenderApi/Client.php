@@ -4,10 +4,10 @@ namespace GenderApi;
 
 use GenderApi\Client\CountryList;
 use GenderApi\Client\Downloader;
-use GenderApi\Client\InvalidParameterException;
 use GenderApi\Client\Query;
 use GenderApi\Client\Result;
 use GenderApi\Client\RuntimeException;
+use GenderApi\Client\InvalidArgumentException;
 
 /**
  * Class Client
@@ -39,7 +39,7 @@ class Client
      * Client constructor.
      *
      * @param null|string $apiKey
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     public function __construct($apiKey = null)
     {
@@ -71,12 +71,12 @@ class Client
 
     /**
      * @param string $apiKey
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     public function setApiKey($apiKey)
     {
         if (!is_string($apiKey)) {
-            throw new InvalidParameterException('Invalid Parameter for $apiKey. String expected, ' . gettype($apiKey) . ' given.');
+            throw new InvalidArgumentException('apiKey expects a string, ' . gettype($apiKey) . ' given.');
         }
 
         $this->apiKey = $apiKey;
@@ -85,16 +85,16 @@ class Client
 
     /**
      * @param string $apiUrl
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     public function setApiUrl($apiUrl)
     {
         if (!is_string($apiUrl)) {
-            throw new InvalidParameterException('Invalid Parameter for $apiUrl. String expected, ' . gettype($apiUrl) . ' given.');
+            throw new InvalidArgumentException('apiUrl expects a string, ' . gettype($apiUrl) . ' given.');
         }
 
         if (filter_var($apiUrl, FILTER_VALIDATE_URL) === false) {
-            throw new InvalidParameterException('Parameter $apiUrl does not contain a valid url.');
+            throw new InvalidArgumentException('apiUrl does not contain a valid url.');
         }
 
         $this->apiUrl = $apiUrl;
@@ -129,7 +129,7 @@ class Client
      *
      * @param string|null $host
      * @param int|null $port
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     public function setProxy($host = null, $port = null)
     {
@@ -141,19 +141,21 @@ class Client
      * @param null|string $country
      * @param null|string $ipAddress
      * @param null|string $locale
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      * @return Result\SingleName
      */
     protected function queryByFirstName($firstName, $country = null, $ipAddress = null, $locale = null)
     {
+
+        $e = new InvalidArgumentException('firstName expects a string with a minimum length of 1 and a max length of 100, ' . gettype($firstName) . ' with a length of ' . strlen($firstName) . ' given.');
         if (!is_string($firstName)) {
-            throw new InvalidParameterException('Invalid Parameter for $firstName. String expected, ' . gettype($firstName) . ' given.');
+            throw $e;
         }
 
         if (strlen($firstName) < 1 && strlen($firstName) > 100) {
-            throw new InvalidParameterException('Invalid Parameter for $firstName. String with a minimum length of 1 and a max length of 100 expected.');
+            throw $e;
         }
 
         $countryCode = $this->getCountryCode($country);
@@ -173,7 +175,7 @@ class Client
 
     /**
      * @param string $firstName
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      * @return Result\SingleName
@@ -186,7 +188,7 @@ class Client
     /**
      * @param string $firstName
      * @param string $country ISO 3166-2 country code. Example: 'US'
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      * @return Result\SingleName
@@ -199,7 +201,7 @@ class Client
     /**
      * @param string $firstName
      * @param string $ipAddress
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      * @return Result\SingleName
@@ -212,7 +214,7 @@ class Client
     /**
      * @param string $firstName
      * @param string $locale
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      * @return Result\SingleName
@@ -226,7 +228,7 @@ class Client
      * @param array $firstNames
      * @param null $country
      * @return Result\MultipleNames
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      */
@@ -239,19 +241,21 @@ class Client
      * @param array $firstNames
      * @param $country
      * @return Result\MultipleNames
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      */
     public function getByMultipleNamesAndCountry(array $firstNames, $country)
     {
+
+        $e = new InvalidArgumentException('firstNames expects an array with strings with a minimum length of 1 and a max length of 100');
         foreach ($firstNames as $firstName) {
             if (!is_string($firstName)) {
-                throw new InvalidParameterException('Invalid Parameter for $firstNames. Array with strings expected, ' . gettype($firstName) . ' given.');
+                throw $e;
             }
 
             if (strlen($firstName) < 1 && strlen($firstName) > 100) {
-                throw new InvalidParameterException('Invalid Parameter for $firstName. String with a minimum length of 1 and a max length of 100 expected.');
+                throw $e;
             }
         }
 
@@ -271,7 +275,7 @@ class Client
      * @param string $firstAndLastName
      * @param bool $strict
      * @return Result\Split
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      */
@@ -285,22 +289,23 @@ class Client
      * @param string $country
      * @param bool $strict
      * @return Result\Split
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      */
     public function getByFirstNameAndLastNameAndCountry($firstAndLastName, $country, $strict = false)
     {
+        $e = new InvalidArgumentException('firstAndLastName expects a string with a minimum length of 1 and a max length of 150, ' . gettype($firstAndLastName) . ' with a length of ' . strlen($firstAndLastName) . ' given.');
         if (!is_string($firstAndLastName)) {
-            throw new InvalidParameterException('Invalid Parameter for $firstAndLastName. String expected, ' . gettype($firstAndLastName) . ' given.');
+            throw $e;
         }
 
         if (!is_bool($strict)) {
-            throw new InvalidParameterException('Invalid Parameter for $strict. String expected, ' . gettype($strict) . ' given.');
+            throw new InvalidArgumentException('strict expects a boolean, ' . gettype($strict) . ' given.');
         }
 
         if (strlen($firstAndLastName) < 1 && strlen($firstAndLastName) > 150) {
-            throw new InvalidParameterException('Invalid Parameter for $firstAndLastName. String with a minimum length of 1 and a max length of 150 expected.');
+            throw $e;
         }
 
         $countryCode = $this->getCountryCode($country);
@@ -317,7 +322,7 @@ class Client
 
     /**
      * @param string $emailAddress
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      * @return Result\EmailAddress
@@ -331,18 +336,21 @@ class Client
      * @param string $emailAddress
      * @param string $country
      * @return Result\EmailAddress
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @throws Client\RuntimeException
      * @throws Client\ApiException
      */
     public function getByEmailAddressAndCountry($emailAddress, $country)
     {
+
+        $e = new InvalidArgumentException('emailAddress expects a string with a valid email address and a minimum length of 1 and a max length of 100, ' . gettype($emailAddress) . ' with a length of ' . strlen($emailAddress) . ' given.');
+
         if (!is_string($emailAddress)) {
-            throw new InvalidParameterException('Invalid Parameter for $emailAddress. String expected, ' . gettype($emailAddress) . ' given.');
+            throw $e;
         }
 
         if (strlen($emailAddress) < 1 && strlen($emailAddress) > 100) {
-            throw new InvalidParameterException('Invalid Parameter for $emailAddress. String with a minimum length of 1 and a max length of 100 expected.');
+            throw $e;
         }
 
         $countryCode = $this->getCountryCode($country);
@@ -375,7 +383,7 @@ class Client
     /**
      * @param null|string $ipAddress
      * @return null|string
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     protected function sanitizeIpAddress($ipAddress = null)
     {
@@ -384,7 +392,7 @@ class Client
         }
 
         if ($ipAddress && !is_string($ipAddress)) {
-            throw new InvalidParameterException('Invalid Parameter for $ipAddress. String expected, ' . gettype($ipAddress) . ' given.');
+            throw new InvalidArgumentException('ipAddress expects a string, ' . gettype($ipAddress) . ' given.');
         }
 
         if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
@@ -395,13 +403,13 @@ class Client
             return $ipAddress;
         }
 
-        throw new InvalidParameterException('Invalid Parameter for $ipAddress. Please provide a valid ip address. See https://gender-api.com/en/api-docs/localization-by-ip');
+        throw new InvalidArgumentException('Invalid ipAddress. Please provide a valid ip address. See https://gender-api.com/en/api-docs/localization-by-ip');
     }
 
     /**
      * @param null|string $locale
      * @return null|string
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     protected function sanitizeLocale($locale = null)
     {
@@ -413,13 +421,13 @@ class Client
             return $locale;
         }
 
-        throw new InvalidParameterException('Invalid Parameter for $locale. Please provide a valid locale. See https://gender-api.com/en/api-docs/localization-by-locale');
+        throw new InvalidArgumentException('locale expects a string. A list of valid locales can be found here https://gender-api.com/en/api-docs/localization-by-locale');
     }
 
     /**
      * @param null|string $emailAddress
      * @return null|string
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      */
     protected function sanitizeEmailAddress($emailAddress)
     {
@@ -428,7 +436,7 @@ class Client
             return $emailAddress;
         }
 
-        throw new InvalidParameterException('Invalid Parameter for $emailAddress. Please provide a valid email address. "' . $emailAddress . '" is not valid.');
+        throw new InvalidArgumentException('emailAddress expects a string with a valid email address and a minimum length of 1 and a max length of 100, ' . gettype($emailAddress) . ' with a length of ' . strlen($emailAddress) . ' given.');
     }
 
     /**
@@ -448,7 +456,7 @@ class Client
 
     /**
      * @param null|string $countryCode
-     * @throws InvalidParameterException
+     * @throws InvalidArgumentException
      * @return string ISO 3166-2 country code
      */
     protected function getCountryCode($country = null)
@@ -458,7 +466,7 @@ class Client
         }
 
         if ($country && !is_string($country)) {
-            throw new InvalidParameterException('Invalid Parameter for $country. String expected, ' . gettype($country) . ' given.');
+            throw new InvalidArgumentException('country expects a string, ' . gettype($country) . ' given.');
         }
 
         if ($this->countryList->isValidCountryCode($country)) {
@@ -470,7 +478,7 @@ class Client
             return $countryCode;
         }
 
-        throw new InvalidParameterException('Invalid Parameter for $country. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.');
+        throw new InvalidArgumentException('Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.');
     }
 
 }

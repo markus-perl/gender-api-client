@@ -32,7 +32,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
     /**
      * @return Client
-     * @throws Client\InvalidParameterException
+     * @throws \GenderApi\Client\InvalidArgumentException
      */
     protected function getClient()
     {
