@@ -30,6 +30,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
      */
     protected $proxyPort = null;
 
+    protected $apiUrl = 'https://gender-api.com/';
+
     /**
      * @return Client
      * @throws \GenderApi\Client\InvalidArgumentException
@@ -38,6 +40,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
     {
         $genderApiClient = new Client($this->apiKey);
         $genderApiClient->setProxy($this->proxyHost, $this->proxyPort);
+        $genderApiClient->setApiUrl($this->apiUrl);
         return $genderApiClient;
     }
 
@@ -48,11 +51,16 @@ class TestCase extends \PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $apiKey = getenv('APIKEY');
+        $apiKey = getenv('API_KEY');
 
         if ($apiKey) {
             $this->doMock = false;
             $this->apiKey = $apiKey;
+        }
+
+        $apiUrl = getenv('API_URL');
+        if ($apiUrl) {
+            $this->apiUrl = $apiUrl;
         }
 
         $proxyHost = getenv('PROXY_HOST');

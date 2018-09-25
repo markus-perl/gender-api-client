@@ -481,4 +481,26 @@ class Client
         throw new InvalidArgumentException('Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.');
     }
 
+
+    public function getCountryOfOrigin($firstName)
+    {
+
+        $e = new InvalidArgumentException('firstName expects a string with a minimum length of 1 and a max length of 100, ' . gettype($firstName) . ' with a length of ' . strlen($firstName) . ' given.');
+        if (!is_string($firstName)) {
+            throw $e;
+        }
+
+        if (strlen($firstName) < 1 && strlen($firstName) > 100) {
+            throw $e;
+        }
+
+        $query = $this->createQuery();
+        $query->addParam('name', $firstName);
+        $query->setMethod('get-country-of-origin');
+
+        $result = new Result\CountryOfOrigin();
+        $query->execute($result);
+        return $result;
+    }
+
 }

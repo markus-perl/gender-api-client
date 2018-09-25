@@ -102,7 +102,6 @@ class Query
             if (isset($responseJson->errno)) {
                 throw new ApiException($responseJson->errmsg, $responseJson->errno);
             }
-
             $result->parseResponse($responseJson);
             $result->setQueryUrl($url);
 

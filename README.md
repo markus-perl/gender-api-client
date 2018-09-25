@@ -116,7 +116,7 @@ try {
 }
 ```
 
-Split First and Last Name
+Split First And Last Name
 ---------
 
 ```php
@@ -133,6 +133,39 @@ try {
         echo $name->getGender(); // will return "male"
         echo $name->getFirstName(); // will return "Frank"
         echo $name->getLastName(); // will return "Underwood"
+    }
+
+} catch (GenderApi\Exception $e) {
+    // Name lookup failed due to a network error or insufficient requests left
+    // See https://gender-api.com/en/api-docs/error-codes
+    echo 'Exception: ' . $e->getMessage();
+}
+```
+
+Country Of Origin
+---------
+
+```php
+use GenderApi\Client as GenderApiClient;
+
+try {
+
+    $apiClient = new GenderApiClient('insert your API key');
+    
+    // Get gender by email address name and country
+    $name = $apiClient->getCountryOfOrigin('Frank');
+ 
+    if ($name->genderFound()) {
+        echo $name->getGender(); // will return "male"
+        echo $name->getFirstName(); // will return "Frank"
+        echo $name->getLastName(); // will return "Underwood"
+        
+        echo $name->getCountryOfOriginMapUrl(); // will return a link to a map that displays the result in a rendered for
+        
+        foreach ($name->getCountryOfOrigin() as $country) {
+                var_dump($country); // country of origin
+        }
+        
     }
 
 } catch (GenderApi\Exception $e) {
