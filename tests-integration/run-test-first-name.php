@@ -25,8 +25,11 @@ $fails     = 0;
 foreach ($csvFile as $line) {
     if ($line['name']) {
         echo $line['name'] . ' - ';
-        $result = $client->getByFirstNameAndLastName($line['name']);
-        if ($result->getFirstName() == $line['correct_first_name']) {
+        $result = $client->getByFirstNameAndCountry($line['name'], $line['country']);
+
+        if ($line['gender'] == 'unisex') $line['gender'] = 'unknown';
+
+        if ($result->getGender() == $line['gender']) {
             $successes++;
             echo '✓';
         } else {
