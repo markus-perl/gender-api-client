@@ -24,7 +24,7 @@ $successes = 0;
 $fails = 0;
 $failures = [];
 foreach ($csvFile as $line) {
-    if ($line['name']) {
+    if ($line && isset($line['name']) && $line['name']) {
         echo $line['name'] . ' - ';
         $result = $client->getByFirstNameAndLastName($line['name']);
         if ($result->getFirstName() == $line['correct_first_name'] && $result->getLastName() == $line['correct_last_name']) {

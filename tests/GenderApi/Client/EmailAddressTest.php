@@ -21,10 +21,9 @@ class EmailAddressTest extends TestCase
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
-            /* @var FileGetContents|\PHPUnit_Framework_MockObject_MockObject $downloader */
             $downloader = $this->createMock(FileGetContents::class);
             $downloader->method('download')
-                ->willReturn('{"email":"elisabeth1499@gmail.com","lastname":null,"mailprovider":"gmail","name":"elisabeth","gender":"female","samples":17296,"accuracy":98,"duration":"20ms"}');
+                ->willReturn('{"email":"elisabeth1499@gmail.com","lastname":null,"mailprovider":"gmail","name":"elisabeth","gender":"female","samples":17296,"accuracy":99,"duration":"20ms"}');
             $genderApiClient->setDownloader($downloader);
         }
 
@@ -32,7 +31,7 @@ class EmailAddressTest extends TestCase
 
         $this->assertEquals('elisabeth', $result->getName());
         $this->assertEquals('female', $result->getGender());
-        $this->assertEquals(98, $result->getAccuracy());
+        $this->assertEquals(99, $result->getAccuracy());
         $this->assertEquals('elisabeth1499@gmail.com', $result->getEmailAddress());
         $this->assertEquals(null, $result->getLastName());
         $this->assertEquals('gmail', $result->getMailProvider());

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+
+docker exec --workdir /www -it gender-api-client /usr/bin/composer "$@"

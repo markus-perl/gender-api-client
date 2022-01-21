@@ -8,7 +8,7 @@ use GenderApi\Client;
  * Class TestCase
  * @package GenderApiTest
  */
-class TestCase extends \PHPUnit_Framework_TestCase
+class TestCase extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var bool
@@ -47,7 +47,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
     /**
      *
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

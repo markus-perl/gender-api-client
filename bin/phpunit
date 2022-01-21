@@ -2,4 +2,4 @@
 
 cd "$(dirname "$0")"
 
-../vendor/phpunit/phpunit/phpunit ../tests "$@"
+docker exec -e API_KEY -e API_URL -e PROXY_HOST -e PROXY_PORT -it gender-api-client /www/vendor/phpunit/phpunit/phpunit /www/tests "$@"

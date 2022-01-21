@@ -24,14 +24,12 @@ class FileGetContentsTest extends TestCase
             $response = $fgt->download('https://gender-api.com/get?name=markus&key=' . $this->apiKey);
         }
 
-        $this->assertContains('gender":"male"', $response);
+        $this->assertStringContainsString('gender":"male"', $response);
     }
 
-    /**
-     * @expectedException \GenderApi\Client\Downloader\NetworkErrorException
-     */
     public function testDownloadNetworkError()
     {
+        $this->expectException(\GenderApi\Client\Downloader\NetworkErrorException::class);
         $fgt = new FileGetContents();
 
         if ($this->doMock) {

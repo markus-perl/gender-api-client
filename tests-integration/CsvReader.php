@@ -105,16 +105,9 @@ class CsvReader implements \Iterator, \Countable
     }
 
 
-    /**
-     * Constructor
-     *
-     * @param string $file CSV Datei
-     * @param string $delimiter
-     */
+
     public function __construct($file, $delimiter = 'auto')
     {
-        ini_set("auto_detect_line_endings", true);
-
         $this->_filePath = $file;
 
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
@@ -203,10 +196,8 @@ class CsvReader implements \Iterator, \Countable
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
-        // return max(0, count(file($this->_filePath)) - 1);
-
         $handle = $this->fopen();
         $count = 0;
 
@@ -219,14 +210,12 @@ class CsvReader implements \Iterator, \Countable
         $this->fclose($handle);
 
         return max(0, $count - 1);
-
     }
 
     /**
-     * Iterator Funktion zum zurücksetzen des Arrays
-     *
+     * @return void
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->_index = 1;
 
@@ -239,14 +228,13 @@ class CsvReader implements \Iterator, \Countable
     }
 
     /**
-     * Iterator Funktion, gibt das aktuelle Element zurück
-     *
-     * @return array
+     * @return array|null
+     * @throws Exception
      */
-    public function current()
+    public function current(): ?array
     {
         if (is_resource($this->_file)) {
-            $values = $this->mapLabelsToValues(fgetcsv($this->_file, self::MAX_LINE_LENGTH, $this->_delimiter));
+            $values = $this->mapLabelsToValues(fgetcsv($this->_file, self::MAX_LINE_LENGTH, $this->_delimiter, '"', ''));
             return $values;
         }
 
@@ -254,15 +242,18 @@ class CsvReader implements \Iterator, \Countable
     }
 
     /**
-     * Mapt die Labels auf die Datensätze
+     * Map labels to values
      *
      * @param mixed $data
      * @return mixed
+     * @throws Exception
      */
     private function mapLabelsToValues($data)
     {
+        $result = array();
+
         if (!is_array($data)) {
-            return $data;
+            return $result;
         }
 
         $mapped = array();
@@ -295,7 +286,6 @@ class CsvReader implements \Iterator, \Countable
             throw new \Exception($msg);
         }
 
-        $result = array();
         foreach ($this->_labels as $id => $label) {
             if (isset($mapped[$id])) {
                 $result[$label] = $mapped[$id];
@@ -306,45 +296,37 @@ class CsvReader implements \Iterator, \Countable
     }
 
     /**
-     * Iterator Funktion, gibt den aktuellen Index zurück
-     *
      * @return int
      */
-    public function key()
+    public function key(): string|int|null
     {
         return $this->_index;
     }
 
     /**
-     * Zum nächsten Element springen
-     *
-     * @return boolean true wenn noch ein element vorhanden ist
+     * Jump to the next element
      */
-    public function next($index = true)
+    public function next(): void
     {
         if (is_resource($this->_file)) {
-            if ($index) {
-                ++$this->_index;
-            }
-            return !feof($this->_file);
+            ++$this->_index;
         }
-        return false;
     }
 
     /**
-     * Iterator Funktion, prüft ob Element gültig
-     *
      * @return boolean
      */
-    public function valid()
+    public function valid(): bool
     {
-        if (!$this->next(false)) {
-            if (is_resource($this->_file)) {
+        if (is_resource($this->_file)) {
+            if (!feof($this->_file)) {
+                return true;
+            } else {
                 $this->fclose($this->_file);
             }
-            return false;
         }
-        return true;
+
+        return false;
     }
 
     /**

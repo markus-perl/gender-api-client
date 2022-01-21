@@ -20,15 +20,15 @@ class CurlTest extends TestCase
 
         if (!$this->doMock) {
             $response = $curl->download('https://gender-api.com/get?name=markus&key=' . $this->apiKey);
-            $this->assertContains('gender":"male"', $response);
+            $this->assertStringContainsString('gender":"male"', $response);
+        } else {
+            $this->markTestSkipped('This test is only executed with an API key');
         }
     }
 
-    /**
-     * @expectedException \GenderApi\Client\Downloader\NetworkErrorException
-     */
     public function testDownloadNetworkError()
     {
+        $this->expectException(\GenderApi\Client\Downloader\NetworkErrorException::class);
         $curl = new Curl();
 
         if ($this->doMock) {

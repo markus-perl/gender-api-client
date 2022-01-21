@@ -91,11 +91,9 @@ class SingleNameTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \GenderApi\Client\InvalidArgumentException
-     */
     public function testGetByFirstNameWithInvalidLocale()
     {
+        $this->expectException(\GenderApi\Client\InvalidArgumentException::class);
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
@@ -186,12 +184,10 @@ class SingleNameTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \GenderApi\Client\InvalidArgumentException
-     * @expectedExceptionMessage Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.
-     */
     public function testGetInvalidCountryCode()
     {
+        $this->expectExceptionMessage("Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.");
+        $this->expectException(\GenderApi\Client\InvalidArgumentException::class);
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
@@ -212,11 +208,9 @@ class SingleNameTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \GenderApi\Client\Downloader\NetworkErrorException
-     */
     public function testServerNotReachable()
     {
+        $this->expectException(\GenderApi\Client\Downloader\NetworkErrorException::class);
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {

@@ -24,11 +24,27 @@ API-Key
 -----------
 Get a free API key here: <https://gender-api.com/en/account>
 
-PHPUnit
+Development
 ------------
 
+Start the dockerized development machine with
 ```
-gender-api-client$ ./bin/phpunit
+docker-compose up
+```
+
+Install all required packages
+```
+bin/composer install
+```
+
+Run all unit tests with mock data
+```
+bin/phpunit
+```
+
+Run all unit tests against the API
+```
+API_KEY=<yourkey> bin/phpunit
 ```
 
 Simple Usage

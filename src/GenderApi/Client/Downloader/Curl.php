@@ -48,7 +48,7 @@ class Curl extends AbstractDownloader
 
         if ($response === false || $responseCode != 200) {
             $lastError = curl_error($this->curl);
-            throw new NetworkErrorException($lastError);
+            throw new NetworkErrorException($lastError . ' - ' . $url);
         }
 
         return $response;

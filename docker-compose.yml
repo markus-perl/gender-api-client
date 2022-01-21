@@ -1,0 +1,11 @@
+# ./docker-compose.yml
+
+version: '3.7'
+
+services:
+  php:
+    image: phpdockerio/php:8.1-fpm
+    container_name: gender-api-client
+    volumes:
+      - ./.:/www
+

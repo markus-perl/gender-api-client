@@ -13,9 +13,6 @@ use GenderApiTest\TestCase;
 class CountryOfOriginTest extends TestCase
 {
 
-    /**
-     *
-     */
     public function testGetCountryOfOrigin()
     {
         $genderApiClient = $this->getClient();
@@ -26,16 +23,16 @@ class CountryOfOriginTest extends TestCase
                 ->willReturn('{
     "name": "markus",
     "country_of_origin": [
-        {
-            "country_name": "Austria",
-            "country": "AT",
+            {
+            "country_name": "Germany",
+            "country": "DE",
             "probability": 0.29,
             "continental_region": "Europe",
             "statistical_region": "Western Europe"
         },
         {
-            "country_name": "Germany",
-            "country": "DE",
+            "country_name": "Austria",
+            "country": "AT",
             "probability": 0.15,
             "continental_region": "Europe",
             "statistical_region": "Western Europe"
@@ -62,18 +59,18 @@ class CountryOfOriginTest extends TestCase
         $this->assertEquals('markus', $result->getName());
         $this->assertEquals('male', $result->getGender());
         $this->assertEquals(99, $result->getAccuracy());
-        $this->assertContains('https://beta.gender-api.com/en/map/', $result->getCountryOfOriginMapUurl());
+        $this->assertStringContainsString('/en/map/', $result->getCountryOfOriginMapUrl());
 
         $countryOfOrigin = $result->getCountryOfOrigin();
-        $this->assertEquals('AT', $countryOfOrigin[0]->getCountry());
-        $this->assertEquals('Austria', $countryOfOrigin[0]->getCountryName());
+        $this->assertEquals('DE', $countryOfOrigin[0]->getCountry());
+        $this->assertEquals('Germany', $countryOfOrigin[0]->getCountryName());
         $this->assertEquals('Western Europe', $countryOfOrigin[0]->getStatisticalRegion());
         $this->assertEquals('Europe', $countryOfOrigin[0]->getContinentalRegion());
 
         if ($this->doMock) {
             $this->assertEquals(26494, $result->getSamples());
             $this->assertEquals(82, $result->getDurationInMs());
-            $this->assertEquals('https://beta.gender-api.com/en/map/19/35a978bd6265e1a8', $result->getCountryOfOriginMapUurl());
+            $this->assertStringContainsString('en/map/19/35a978bd6265e1a8', $result->getCountryOfOriginMapUrl());
         }
     }
 
