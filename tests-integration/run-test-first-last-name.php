@@ -9,7 +9,10 @@ if (!isset($argv[1], $argv[2], $argv[3])) {
 
 $testFile = $argv[1];
 $apiKey = $argv[2];
-$apiUrl = $argv[3];
+$apiUrl = rtrim($argv[3], '/');
+if (substr($apiUrl, -3) !== '/v2') {
+    $apiUrl .= '/v2';
+}
 
 if (!file_exists($testFile)) {
     echo 'file ' . $testFile . ' not found.' . PHP_EOL;
