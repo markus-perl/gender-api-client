@@ -46,14 +46,12 @@ class FileGetContents extends AbstractDownloader
         }
 
         // Check for HTTP errors in response headers
-        $responseHeaders = http_get_last_response_headers();
-        if ($responseHeaders !== null) {
-            $statusLine = $responseHeaders[0] ?? '';
-            if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
-                $statusCode = (int) $matches[1];
-                if ($statusCode >= 400) {
-                    throw new NetworkErrorException('HTTP ' . $statusCode . ' - ' . $url . ' - ' . $response);
-                }
+        $responseHeaders = $http_response_header;
+        $statusLine = $responseHeaders[0] ?? '';
+        if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
+            $statusCode = (int) $matches[1];
+            if ($statusCode >= 400) {
+                throw new NetworkErrorException('HTTP ' . $statusCode . ' - ' . $url . ' - ' . $response);
             }
         }
 
