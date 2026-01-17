@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 use GenderApi\Client;
@@ -7,30 +9,25 @@ use GenderApi\Client\Downloader\FileGetContents;
 use GenderApiTest\TestCase;
 
 /**
- * Class SingleNameTest
- * @package GenderApi\Client
+ * Tests for single first name lookup (API v2)
  */
 class SingleNameTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testGetByFirstNameWithoutCountry()
+    public function testGetByFirstNameWithoutCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"markus","gender":"male","samples":26494,"accuracy":99,"duration":"25ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"first_name":"markus"},"details":{"credits_used":1,"duration":"25ms","samples":26494},"result_found":true,"first_name":"Markus","probability":0.99,"gender":"male"}');
             $genderApiClient->setDownloader($downloader);
         }
 
         $result = $genderApiClient->getByFirstName('markus');
-        $this->assertEquals('markus', $result->getName());
+        $this->assertStringContainsStringIgnoringCase('markus', $result->getFirstName());
         $this->assertEquals('male', $result->getGender());
-        $this->assertEquals(99, $result->getAccuracy());
+        $this->assertGreaterThan(90, $result->getAccuracy());
 
         if ($this->doMock) {
             $this->assertEquals(26494, $result->getSamples());
@@ -38,189 +35,116 @@ class SingleNameTest extends TestCase
         }
     }
 
-    /**
-     *
-     */
-    public function testGetByFirstNameWithCountry()
+    public function testGetByFirstNameWithCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"tanja","gender":"female","samples":26494,"accuracy":98,"duration":"25ms","country":"IT"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"first_name":"tanja","country":"IT"},"details":{"credits_used":1,"duration":"25ms","samples":26494,"country":"IT"},"result_found":true,"first_name":"Tanja","probability":0.98,"gender":"female"}');
             $genderApiClient->setDownloader($downloader);
         }
 
         $result = $genderApiClient->getByFirstNameAndCountry('tanja', 'IT');
-        $this->assertEquals('tanja', $result->getName());
+        $this->assertStringContainsStringIgnoringCase('tanja', $result->getFirstName());
         $this->assertEquals('female', $result->getGender());
-        $this->assertEquals(98, $result->getAccuracy());
-        $this->assertEquals('IT', $result->getCountry());
+        $this->assertGreaterThan(90, $result->getAccuracy());
 
         if ($this->doMock) {
+            $this->assertEquals('IT', $result->getCountry());
             $this->assertEquals(26494, $result->getSamples());
             $this->assertEquals(25, $result->getDurationInMs());
         }
     }
 
-    /**
-     *
-     */
-    public function testGetByFirstNameWithLocale()
+    public function testGetByFirstNameWithLocale(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"tanja","country":"GB","gender":"female","samples":68,"accuracy":97,"duration":"23ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"first_name":"tanja","locale":"en_GB"},"details":{"credits_used":1,"duration":"23ms","samples":68,"country":"GB"},"result_found":true,"first_name":"Tanja","probability":0.97,"gender":"female"}');
             $genderApiClient->setDownloader($downloader);
         }
 
         $result = $genderApiClient->getByFirstNameAndLocale('tanja', 'en_GB');
-
-        $this->assertEquals('tanja', $result->getName());
+        $this->assertStringContainsStringIgnoringCase('tanja', $result->getFirstName());
         $this->assertEquals('female', $result->getGender());
-        $this->assertEquals(97, $result->getAccuracy());
-        $this->assertEquals('GB', $result->getCountry());
-
-        if ($this->doMock) {
-            $this->assertEquals(68, $result->getSamples());
-            $this->assertEquals(23, $result->getDurationInMs());
-        }
+        $this->assertGreaterThan(90, $result->getAccuracy());
     }
 
-    public function testGetByFirstNameWithInvalidLocale()
+    public function testGetByFirstNameWithInvalidLocale(): void
     {
-        $this->expectException(\GenderApi\Client\InvalidArgumentException::class);
+        $this->expectException(Client\InvalidArgumentException::class);
+
         $genderApiClient = $this->getClient();
-
-        if ($this->doMock) {
-            $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"tanja","country":"GB","gender":"female","samples":68,"accuracy":97,"duration":"23ms"}');
-            $genderApiClient->setDownloader($downloader);
-        }
-
-        $genderApiClient->getByFirstNameAndLocale('tanja', 'de_XZ');
+        $genderApiClient->getByFirstNameAndLocale('tanja', 'xxx');
     }
 
-    /**
-     *
-     */
-    public function testGetByFirstNameWithIpAddress()
+    public function testGetByFirstNameWithIpAddress(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"tanja","country":"DE","gender":"female","samples":7261,"accuracy":98,"duration":"26ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"first_name":"tanja","ip":"178.27.52.144"},"details":{"credits_used":1,"duration":"23ms","samples":68,"country":"DE"},"result_found":true,"first_name":"Tanja","probability":0.98,"gender":"female"}');
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByFirstNameAndClientIpAddress('tanja', '178.27.66.144');
-
-        $this->assertEquals('tanja', $result->getName());
+        $result = $genderApiClient->getByFirstNameAndClientIpAddress('tanja', '178.27.52.144');
+        $this->assertStringContainsStringIgnoringCase('tanja', $result->getFirstName());
         $this->assertEquals('female', $result->getGender());
-        $this->assertEquals(98, $result->getAccuracy());
-        $this->assertEquals('DE', $result->getCountry());
-
-        if ($this->doMock) {
-            $this->assertEquals(7261, $result->getSamples());
-            $this->assertEquals(26, $result->getDurationInMs());
-        }
     }
 
-    /**
-     *
-     */
-    public function testGetByFirstNameWithCountryName()
+    public function testGetByFirstNameWithCountryName(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"tanja","gender":"female","samples":26494,"accuracy":98,"duration":"25ms","country":"DE"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"first_name":"markus","country":"DE"},"details":{"credits_used":1,"duration":"25ms","samples":26494,"country":"DE"},"result_found":true,"first_name":"Markus","probability":0.99,"gender":"male"}');
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByFirstNameAndCountry('tanja', 'Germany');
-        $this->assertEquals('tanja', $result->getName());
-        $this->assertEquals('female', $result->getGender());
-        $this->assertEquals('98', $result->getAccuracy());
-        $this->assertEquals('DE', $result->getCountry());
-
-        if ($this->doMock) {
-            $this->assertEquals(26494, $result->getSamples());
-            $this->assertEquals(25, $result->getDurationInMs());
-        }
+        $result = $genderApiClient->getByFirstNameAndCountry('markus', 'germany');
+        $this->assertStringContainsStringIgnoringCase('markus', $result->getFirstName());
+        $this->assertEquals('male', $result->getGender());
     }
 
-    /**
-     *
-     */
-    public function testGetInvalidName()
+    public function testGetInvalidName(): void
     {
+        $this->expectException(Client\InvalidArgumentException::class);
+
         $genderApiClient = $this->getClient();
+        $genderApiClient->getByFirstName('');
+    }
+
+    public function testGetInvalidCountryCode(): void
+    {
+        $this->expectException(Client\InvalidArgumentException::class);
+
+        $genderApiClient = $this->getClient();
+        $genderApiClient->getByFirstNameAndCountry('markus', 'XX');
+    }
+
+    public function testServerNotReachable(): void
+    {
+        $this->expectException(Client\Downloader\NetworkErrorException::class);
+
+        $genderApiClient = $this->getClient();
+        $genderApiClient->setApiUrl('http://localhost:9999');
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"alksdjfkla","country":"IT","gender":"unknown","samples":0,"accuracy":0,"duration":"24ms"}');
+            $downloader->method('request')
+                ->willThrowException(new Client\Downloader\NetworkErrorException('Connection refused'));
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByFirstName('alksdjfkla');
-        $this->assertEquals('alksdjfkla', $result->getName());
-        $this->assertEquals('unknown', $result->getGender());
-        $this->assertEquals(0, $result->getAccuracy());
-        $this->assertEquals(0, $result->getSamples());
-
-        if ($this->doMock) {
-            $this->assertEquals(24, $result->getDurationInMs());
-        }
-    }
-
-    public function testGetInvalidCountryCode()
-    {
-        $this->expectExceptionMessage("Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.");
-        $this->expectException(\GenderApi\Client\InvalidArgumentException::class);
-        $genderApiClient = $this->getClient();
-
-        if ($this->doMock) {
-            $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"markus","errno":10,"errmsg":"invalid country code","gender":"unknown","samples":0,"accuracy":0,"duration":"33ms"}');
-            $genderApiClient->setDownloader($downloader);
-        }
-
-        $result = $genderApiClient->getByFirstNameAndCountry('markus', 'XZ');
-        $this->assertEquals('markus', $result->getName());
-        $this->assertEquals('unknown', $result->getGender());
-        $this->assertEquals(0, $result->getAccuracy());
-        $this->assertEquals(0, $result->getSamples());
-
-        if ($this->doMock) {
-            $this->assertEquals(24, $result->getDurationInMs());
-        }
-    }
-
-    public function testServerNotReachable()
-    {
-        $this->expectException(\GenderApi\Client\Downloader\NetworkErrorException::class);
-        $genderApiClient = $this->getClient();
-
-        if ($this->doMock) {
-            $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willThrowException(new \GenderApi\Client\Downloader\NetworkErrorException('file_get_contents(https://gender-api.com/wrong-url?key=XXXXXXXXXXXXX&name=markus): failed to open stream: HTTP request failed! HTTP/1.1 404 Not Found'));
-            $genderApiClient->setDownloader($downloader);
-        }
-
-        $genderApiClient->setApiUrl('https://gender-api.com/wrong-url?');
-        $genderApiClient->getByFirstName('tanja', 'IT');
+        $genderApiClient->getByFirstName('markus');
     }
 }

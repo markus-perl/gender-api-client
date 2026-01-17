@@ -2,34 +2,41 @@
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/CsvReader.php';
 
-if ( ! isset($argv[1], $argv[2], $argv[3])) {
+if (!isset($argv[1], $argv[2], $argv[3])) {
     echo 'Usage: ' . $argv[0] . ' <csv file to run tests against> <apiKey> <apiUrl>';
     exit(1);
 }
 
 $testFile = $argv[1];
-$apiKey   = $argv[2];
-$apiUrl   = $argv[3];
+$apiKey = $argv[2];
+$apiUrl = $argv[3];
 
-if ( ! file_exists($testFile)) {
+if (!file_exists($testFile)) {
     echo 'file ' . $testFile . ' not found.' . PHP_EOL;
     exit(1);
 }
 
 $csvFile = new CsvReader($testFile);
-$client  = new \GenderApi\Client($apiKey);
+$client = new \GenderApi\Client($apiKey);
 $client->setApiUrl($apiUrl);
 
 $successes = 0;
-$fails     = 0;
+$fails = 0;
 foreach ($csvFile as $line) {
-    if ($line['name']) {
+    if (isset($line['name']) && $line['name']) {
         echo $line['name'] . ' - ';
-        $result = $client->getByFirstNameAndCountry($line['name'], $line['country']);
+        if (isset($line['country'])) {
+            $result = $client->getByFirstNameAndCountry($line['name'], $line['country']);
+        } else {
+            $result = $client->getByFirstName($line['name']);
+        }
 
-        if ($line['gender'] == 'unisex') $line['gender'] = 'unknown';
+        $expectedGender = $line['gender'] ?? $line['correct_gender'] ?? 'unknown';
 
-        if ($result->getGender() == $line['gender']) {
+        if ($expectedGender == 'unisex')
+            $expectedGender = 'unknown';
+
+        if ($result->getGender() == $expectedGender) {
             $successes++;
             echo '✓';
         } else {

@@ -1,20 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi;
 
 /**
- * Class Exception
- * @package GenderApi
+ * Base exception class for GenderApi
  */
 class Exception extends \Exception
 {
-
-    /**
-     * @return int
-     */
-    public function getErrorNo()
+    public function getErrorNo(): int
     {
         return $this->getCode();
     }
-
 }

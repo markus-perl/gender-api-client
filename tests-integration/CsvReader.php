@@ -187,7 +187,7 @@ class CsvReader implements \Iterator, \Countable
         $this->fclose($handle);
 
         foreach ($delimiters as $delimiter => &$count) {
-            $count = count(str_getcsv($firstLine, $delimiter));
+            $count = count(str_getcsv($firstLine, $delimiter, '"', "\\"));
         }
 
         return array_search(max($delimiters), $delimiters);
@@ -221,7 +221,7 @@ class CsvReader implements \Iterator, \Countable
 
         if (is_resource($this->_file)) {
             rewind($this->_file);
-            $labels = fgetcsv($this->_file, self::MAX_LINE_LENGTH, $this->_delimiter);
+            $labels = fgetcsv($this->_file, self::MAX_LINE_LENGTH, $this->_delimiter, '"', '');
 
             $this->_labels = $labels;
         }

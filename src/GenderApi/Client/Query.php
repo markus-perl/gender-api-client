@@ -1,110 +1,159 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 use GenderApi\Client\Downloader\AbstractDownloader;
 use GenderApi\Client\Result\AbstractResult;
 
 /**
- * Class Query
- *
- * @package GenderApi\Client
+ * Handles API v2 query execution
  */
 class Query
 {
+    /** @var array<string, mixed> */
+    private array $body = [];
 
-    /**
-     * @var String[]
-     */
-    private $params = array();
+    private string $apiUrl;
 
-    /**
-     * @var string
-     */
-    private $apiUrl;
+    private AbstractDownloader $downloader;
 
-    /**
-     * @var AbstractDownloader
-     */
-    private $downloader;
+    private string $endpoint;
 
-    /**
-     * @var string
-     */
-    private $method;
+    private string $httpMethod;
 
-    /**
-     * Query constructor.
-     *
-     * @param string $apiUrl
-     */
-    public function __construct($apiUrl, AbstractDownloader $downloader, $method = 'get')
-    {
-        $this->apiUrl     = $apiUrl;
+    public function __construct(
+        string $apiUrl,
+        AbstractDownloader $downloader,
+        string $endpoint = '/gender/by-first-name',
+        string $httpMethod = 'POST'
+    ) {
+        $this->apiUrl = rtrim($apiUrl, '/');
         $this->downloader = $downloader;
-        $this->method     = 'get';
+        $this->endpoint = $endpoint;
+        $this->httpMethod = $httpMethod;
     }
 
     /**
-     * @param string $key
-     * @param string $value
+     * Set a body parameter for POST requests
      */
-    public function addParam($key, $value)
+    public function setBodyParam(string $key, mixed $value): void
     {
-        $this->params[$key] = $value;
+        if ($value !== null && $value !== '') {
+            $this->body[$key] = $value;
+        }
     }
 
     /**
-     * @return String[]
-     */
-    public function getParams()
-    {
-        return $this->params;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->method;
-    }
-
-    /**
-     * @param string $method
-     */
-    public function setMethod($method)
-    {
-        $this->method = $method;
-    }
-
-    /**
-     * @param AbstractResult $result
+     * Set the entire body (for batch requests)
      *
-     * @return AbstractResult
+     * @param array<mixed> $body
+     */
+    public function setBody(array $body): void
+    {
+        $this->body = $body;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getBody(): array
+    {
+        return $this->body;
+    }
+
+    public function getEndpoint(): string
+    {
+        return $this->endpoint;
+    }
+
+    public function setEndpoint(string $endpoint): void
+    {
+        $this->endpoint = $endpoint;
+    }
+
+    public function getHttpMethod(): string
+    {
+        return $this->httpMethod;
+    }
+
+    public function setHttpMethod(string $method): void
+    {
+        $this->httpMethod = $method;
+    }
+
+    /**
+     * Build the full URL for the request
+     */
+    public function getUrl(): string
+    {
+        return $this->apiUrl . $this->endpoint;
+    }
+
+    /**
+     * Execute the API request
+     *
      * @throws RuntimeException
      * @throws ApiException
      */
-    public function execute(AbstractResult $result)
+    public function execute(AbstractResult $result): AbstractResult
     {
-            $query = http_build_query(
-                $this->getParams()
-            );
+        $url = $this->getUrl();
+        $body = $this->httpMethod === 'POST' ? $this->body : null;
 
-            $url      = $this->apiUrl . $this->getMethod() . '?' . $query;
-            $response = $this->downloader->download($url);
+        $response = $this->downloader->request($url, $this->httpMethod, $body);
 
-            $responseJson = json_decode($response);
-            if ( ! $responseJson) {
-                throw new RuntimeException('Failed to parse Response. Invalid Json: ' . $response);
-            }
+        $responseJson = json_decode($response);
 
-            if (isset($responseJson->errno)) {
-                throw new ApiException($responseJson->errmsg, $responseJson->errno);
-            }
-            $result->parseResponse($responseJson);
+        // Handle array responses (for batch endpoints)
+        if (is_array($responseJson)) {
+            $result->parseResponse((object) ['results' => $responseJson]);
             $result->setQueryUrl($url);
-
             return $result;
+        }
+
+        if (!$responseJson instanceof \stdClass) {
+            throw new RuntimeException('Failed to parse Response. Invalid Json: ' . $response);
+        }
+
+        // v2 API error handling
+        if (isset($responseJson->errmsg)) {
+            $errno = isset($responseJson->errno) ? (int) $responseJson->errno : 0;
+            throw new ApiException((string) $responseJson->errmsg, $errno);
+        }
+
+        $result->parseResponse($responseJson);
+        $result->setQueryUrl($url);
+
+        return $result;
+    }
+
+    // Legacy compatibility methods
+    /** @deprecated Use setBodyParam() instead */
+    public function addParam(string $key, string|int|null $value): void
+    {
+        $this->setBodyParam($key, $value);
+    }
+
+    /**
+     * @deprecated Use getBody() instead
+     * @return array<mixed>
+     */
+    public function getParams(): array
+    {
+        return $this->body;
+    }
+
+    /** @deprecated Use getEndpoint() instead */
+    public function getMethod(): string
+    {
+        return $this->endpoint;
+    }
+
+    /** @deprecated Use setEndpoint() instead */
+    public function setMethod(string $method): void
+    {
+        $this->endpoint = $method;
     }
 }

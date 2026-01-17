@@ -1,0 +1,899 @@
+openapi: 3.0.0
+info:
+  version: "2.1"
+  title: Gender-API.com API
+  description: Gender-API hilft dir herauszufinden, ob ein Vorname mehr von männlichen oder weiblichen Personen benutzt wird.
+servers:
+  - url: https://gender-api.com/v2
+    description: Main (production) server
+security:
+  - bearerToken: [ ]
+components:
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Get an API key here: [https://gender-api.com/en/account/auth-tokens](https://gender-api.com/en/account/auth-tokens)"
+  schemas:
+    NameRequestModel:
+      properties:
+        country:
+          type: string
+          example: "US"
+          enum:
+            - null
+            - "AF"
+            - "AL"
+            - "DZ"
+            - "AS"
+            - "AD"
+            - "AO"
+            - "AI"
+            - "AQ"
+            - "AG"
+            - "AR"
+            - "AM"
+            - "AW"
+            - "AU"
+            - "AT"
+            - "AZ"
+            - "BS"
+            - "BH"
+            - "BD"
+            - "BB"
+            - "BY"
+            - "BE"
+            - "BZ"
+            - "BJ"
+            - "BM"
+            - "BT"
+            - "BO"
+            - "BA"
+            - "BW"
+            - "BV"
+            - "BR"
+            - "BQ"
+            - "IO"
+            - "VG"
+            - "BN"
+            - "BG"
+            - "BF"
+            - "BI"
+            - "KH"
+            - "CM"
+            - "CA"
+            - "CT"
+            - "CV"
+            - "KY"
+            - "CF"
+            - "TD"
+            - "CL"
+            - "CN"
+            - "CX"
+            - "CC"
+            - "CO"
+            - "KM"
+            - "CG"
+            - "CD"
+            - "CG"
+            - "CG"
+            - "CK"
+            - "CR"
+            - "HR"
+            - "CU"
+            - "CY"
+            - "CZ"
+            - "CI"
+            - "CI"
+            - "DK"
+            - "DJ"
+            - "DM"
+            - "DO"
+            - "NQ"
+            - "EC"
+            - "EG"
+            - "SV"
+            - "GQ"
+            - "ER"
+            - "EE"
+            - "ET"
+            - "FK"
+            - "FO"
+            - "FJ"
+            - "FI"
+            - "FR"
+            - "GF"
+            - "PF"
+            - "TF"
+            - "FQ"
+            - "GA"
+            - "GM"
+            - "GE"
+            - "DE"
+            - "GH"
+            - "GI"
+            - "GR"
+            - "GL"
+            - "GD"
+            - "GP"
+            - "GU"
+            - "GT"
+            - "GG"
+            - "GN"
+            - "GW"
+            - "GY"
+            - "HT"
+            - "HM"
+            - "HN"
+            - "HK"
+            - "HK"
+            - "HU"
+            - "IS"
+            - "IN"
+            - "ID"
+            - "IR"
+            - "IQ"
+            - "IE"
+            - "IM"
+            - "IL"
+            - "IT"
+            - "JM"
+            - "JP"
+            - "JE"
+            - "JT"
+            - "JO"
+            - "KZ"
+            - "KE"
+            - "KI"
+            - "KW"
+            - "KG"
+            - "LA"
+            - "LV"
+            - "LB"
+            - "LS"
+            - "LR"
+            - "LY"
+            - "LI"
+            - "LT"
+            - "LU"
+            - "MO"
+            - "MK"
+            - "MG"
+            - "MW"
+            - "MY"
+            - "MV"
+            - "ML"
+            - "MT"
+            - "MH"
+            - "MQ"
+            - "MR"
+            - "MU"
+            - "YT"
+            - "FX"
+            - "MX"
+            - "FM"
+            - "FM"
+            - "MI"
+            - "MD"
+            - "MC"
+            - "MN"
+            - "ME"
+            - "MS"
+            - "MA"
+            - "MZ"
+            - "MM"
+            - "MM"
+            - "NA"
+            - "NR"
+            - "NP"
+            - "NL"
+            - "AN"
+            - "NT"
+            - "NC"
+            - "NZ"
+            - "NI"
+            - "NE"
+            - "NG"
+            - "NU"
+            - "NF"
+            - "KP"
+            - "VD"
+            - "MP"
+            - "NO"
+            - "OM"
+            - "PC"
+            - "PK"
+            - "PW"
+            - "PS"
+            - "PA"
+            - "PZ"
+            - "PG"
+            - "PY"
+            - "YD"
+            - "PE"
+            - "PH"
+            - "PN"
+            - "PL"
+            - "PT"
+            - "PR"
+            - "QA"
+            - "RO"
+            - "RU"
+            - "RW"
+            - "RE"
+            - "RE"
+            - "RE"
+            - "BL"
+            - "SH"
+            - "KN"
+            - "LC"
+            - "MF"
+            - "SX"
+            - "PM"
+            - "VC"
+            - "WS"
+            - "SM"
+            - "SA"
+            - "SN"
+            - "RS"
+            - "CS"
+            - "SC"
+            - "SL"
+            - "SG"
+            - "SK"
+            - "SI"
+            - "SB"
+            - "SO"
+            - "ZA"
+            - "GS"
+            - "KR"
+            - "ES"
+            - "LK"
+            - "SD"
+            - "SD"
+            - "SR"
+            - "SJ"
+            - "SZ"
+            - "SE"
+            - "CH"
+            - "SY"
+            - "ST"
+            - "ST"
+            - "TW"
+            - "TJ"
+            - "TZ"
+            - "TH"
+            - "TL"
+            - "TL"
+            - "TG"
+            - "TK"
+            - "TO"
+            - "TT"
+            - "TN"
+            - "TR"
+            - "TM"
+            - "TC"
+            - "TV"
+            - "UM"
+            - "PU"
+            - "VI"
+            - "UG"
+            - "UA"
+            - "AE"
+            - "GB"
+            - "UY"
+            - "UZ"
+            - "VU"
+            - "VA"
+            - "VE"
+            - "VN"
+            - "WK"
+            - "WF"
+            - "EH"
+            - "YE"
+            - "ZM"
+            - "ZW"
+            - "AX"
+        locale:
+          type: string
+          description: "Browser Locale"
+          example: null
+        ip:
+          type: string
+          description: "Valid IPv4 or IPv6 address"
+          example: null
+    FirstNameRequestModel:
+      allOf:
+        - $ref: '#/components/schemas/NameRequestModel'
+        - type: object
+          properties:
+            first_name:
+              type: string
+              description: "Name to query"
+              example: "Sandra"
+    FirstNameRequestModelMultiple:
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/FirstNameRequestModel'
+      example:
+        - id: "1"
+          first_name: "sandra"
+          country: "US"
+        - id: "2"
+          first_name: "mike"
+          country: "CA"
+    FullNameRequestModel:
+      allOf:
+        - $ref: '#/components/schemas/NameRequestModel'
+        - type: object
+          properties:
+            full_name:
+              type: string
+              description: "Name to query"
+              example: "Sandra Miller"
+    FullNameRequestModelMultiple:
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/FullNameRequestModel'
+      example:
+        - id: "1"
+          first_name: "sandra miller"
+          country: "US"
+        - id: "2"
+          first_name: "mike meyers"
+    EmailRequestModel:
+      allOf:
+        - $ref: '#/components/schemas/NameRequestModel'
+        - type: object
+          properties:
+            email:
+              type: string
+              description: "Email address to query"
+              example: "sandra.miller14@gmail.com"
+      required:
+        - email
+    EmailRequestModelMultiple:
+      type: array
+      items:
+        oneOf:
+          - $ref: '#/components/schemas/EmailRequestModel'
+      example:
+        - id: "1"
+          email: "sandra.miller14@gmail.com"
+          country: "US"
+        - id: "2"
+          email: "mark.meyer@gmail.com"
+    CountryOfOriginRequestModel:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: "Johanna"
+        full_name:
+          type: string
+          example: null
+        email:
+          type: string
+          example: null
+    ResultModel:
+      type: object
+      properties:
+        input:
+          type: object
+          description: "The submitted payload"
+        details:
+          type: object
+          description: "Technical details about the response"
+          properties:
+            credits_used:
+              type: integer
+              example: 1
+              description: "The amount of credits used for this query"
+            samples:
+              type: integer
+              example: 150
+              description: "Number of records found in our database which match your request"
+            country:
+              type: string
+              description: "The country we found"
+              example: null
+            first_name_sanitized:
+              type: string
+              description: "The name after we applied our normalizer to it"
+              example: "sandra"
+            duration:
+              type: string
+              description: "Time the server needed to process the request"
+              example: "78ms"
+        result_found:
+          type: boolean
+          description: "True if we were able to query a gender for the given name"
+        first_name:
+          type: string
+          description: "The first name we used for genderization"
+          example: "Sandra"
+        probability:
+          type: number
+          format: float
+          example: 0.95
+          description: "This value (between 0 and 1) determines the reliability of our database. A value of 1 means that the results on your gender request are 100% accurate."
+        gender:
+          type: string
+          example: "female"
+          description: "Possible values: male, female, unknown (if we have the same amount of male and female samples for this name, the API will return unknown here)"
+    ResultModelMultiple:
+      type: array
+      items:
+        $ref: '#/components/schemas/ResultModel'
+    FirstNameResultModel:
+      allOf:
+        - $ref: '#/components/schemas/ResultModel'
+      properties:
+        input:
+          properties:
+            first_name:
+              type: string
+              example: "Sandra"
+    FirstNameResultModelMultiple:
+      allOf:
+        - $ref: '#/components/schemas/ResultModelMultiple'
+      example:
+        - input:
+            first_name: sandra
+            country: US
+            id: '1'
+          details:
+            credits_used: 1
+            duration: 72ms
+            samples: 70
+            country: US
+            first_name_sanitized: sandra
+          result_found: true
+          first_name: Sandra
+          probability: 0.61
+          gender: female
+        - input:
+            first_name: mike
+            country: CA
+            id: '2'
+          details:
+            credits_used: 1
+            duration: 77ms
+            samples: 1180
+            country: null
+            first_name_sanitized: mike
+          result_found: true
+          first_name: Mike
+          probability: 0.98
+          gender: male
+    FullNameResultModelMultiple:
+      allOf:
+        - $ref: '#/components/schemas/ResultModelMultiple'
+      example:
+        - input:
+            first_name: sandra miller
+            country: US
+            id: '1'
+          details:
+            credits_used: 1
+            duration: 43ms
+            samples: 70
+            country: US
+            first_name_sanitized: sandra
+          result_found: true
+          first_name: Sandra
+          probability: 0.61
+          gender: female
+        - input:
+            first_name: mike meyers
+            id: '2'
+          details:
+            credits_used: 1
+            duration: 75ms
+            samples: 1180
+            country: null
+            first_name_sanitized: mike
+          result_found: true
+          first_name: Mike
+          probability: 0.98
+          gender: male
+
+    EmailResultModelMultiple:
+      allOf:
+        - $ref: '#/components/schemas/ResultModelMultiple'
+      example:
+        - input:
+            email: sandra.miller14@gmail.com
+            country: US
+            id: '1'
+          details:
+            credits_used: 1
+            duration: 82ms
+            samples: 70
+            country: US
+            first_name_sanitized: sandra
+          result_found: true
+          last_name: Miller
+          first_name: Sandra
+          probability: 0.61
+          gender: female
+        - input:
+            email: mark.meyer@gmail.com
+            id: '2'
+          details:
+            credits_used: 1
+            duration: 94ms
+            samples: 10
+            country: null
+            first_name_sanitized: meyer
+          result_found: true
+          last_name: Mark
+          first_name: Meyer
+          probability: 1
+          gender: male
+
+    FullNameResultModel:
+      allOf:
+        - $ref: '#/components/schemas/ResultModel'
+      properties:
+        input:
+          properties:
+            full_name:
+              type: string
+              example: "Sandra Miller"
+    EmailResultModel:
+      allOf:
+        - $ref: '#/components/schemas/ResultModel'
+      properties:
+        input:
+          properties:
+            email:
+              type: string
+              example: "sandra.miller14@gmail.com"
+    StatisticResultModel:
+      properties:
+        is_limit_reached:
+          type: boolean
+          example: false
+        remaining_credits:
+          type: integer
+          example: 23456
+        details:
+          type: object
+          properties:
+            credits_used:
+              type: integer
+              example: 0
+            duration:
+              type: string
+              example: "32ms"
+        usage_last_month:
+          type: object
+          properties:
+            date:
+              type: string
+              example: '2021-09'
+            credits_used:
+              type: integer
+              example: 30446
+    CountryOfOriginResultModel:
+      type: object
+      properties:
+        input:
+          description: "The submitted payload"
+          properties:
+            first_name:
+              type: string
+        details:
+          properties:
+            credits_used:
+              type: integer
+              description: "The amount of credits used for this query"
+            duration:
+              type: string
+              description: "Time the server needed to process the request"
+            samples:
+              type: integer
+              description: "Number of records found in our database which match your request"
+            country:
+              type: string
+              description: "The country we found"
+            first_name_sanitized:
+              type: string
+              description: "The name after we applied our normalizer to it"
+        result_found:
+          type: boolean
+          description: "True if we were able to query a gender for the given name"
+        country_of_origin:
+          type: array
+          items:
+            type: object
+            properties:
+              country_name:
+                type: string
+                example: "Germany"
+              country:
+                type: string
+                example: "DE"
+              probability:
+                type: number
+                description: "This value (between 0 and 1) determines how sure we are, that this name comes from this country"
+              continental_region:
+                type: string
+                example: "Europe"
+              statistical_region:
+                type: string
+                example: "Western Europe"
+        country_of_origin_map_url:
+          type: string
+          description: "URL to an interactive map about this name"
+        first_name:
+          type: string
+          description: "The first name we used for the genderization"
+        probability:
+          type: number
+          format: float
+          description: "This value (between 0 and 1) determines the reliability of our database. A value of 1 means that the results on your gender request are 100% accurate."
+        gender:
+          type: string
+          example: "female"
+          description: "Possible values: male, female, unknown (if we have the same amount of male and female samples for this name, the API will return unknown here)"
+      example:
+        input:
+          first_name: Johanna
+        details:
+          credits_used: 2
+          duration: 210ms
+          samples: 3826
+          country: null
+          first_name_sanitized: johanna
+        result_found: true
+        country_of_origin:
+          - country_name: Germany
+            country: DE
+            probability: 0.53
+            continental_region: Europe
+            statistical_region: Western Europe
+          - country_name: Finland
+            country: FI
+            probability: 0.26
+            continental_region: Europe
+            statistical_region: Northern Europe
+          - country_name: Belgium
+            country: BE
+            probability: 0.16
+            continental_region: Europe
+            statistical_region: Western Europe
+          - country_name: United States
+            country: US
+            probability: 0.03
+            continental_region: Americas
+            statistical_region: Northern America
+          - country_name: Spain
+            country: ES
+            probability: 0.02
+            continental_region: Europe
+            statistical_region: Southern Europe
+        country_of_origin_map_url: http://localhost/en/map/7/f43185621c3e4c9c
+        first_name: Johanna
+        probability: 0.99
+        gender: female
+
+    ErrorModel:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: error code.
+          example: 400
+        type:
+          type: string
+          description: Link to the error description.
+          example: "https://gender-api.com/en/api-docs/v2/index/problem-details/limit-exceeded"
+        title:
+          type: string
+          description: error id.
+          example: "limit-exceeded"
+        detail:
+          type: string
+          description: "human readable error description"
+          example: "Limit exceeded. Thank you for using our service. Please consider to buy more credits."
+    LimitExceededModel:
+      allOf:
+        - $ref: '#/components/schemas/ErrorModel'
+      properties:
+        status:
+          example: 401
+        type:
+          example: "https://gender-api.com/en/api-docs/v2/index/problem-details/authorization-header-missing"
+        title:
+          example: "authorization-header-missing"
+        detail:
+          example: "Your query misses the \"Authorization\" header with the bearer token."
+  responses:
+    LimitExceededError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LimitExceededModel'
+      description: "limit-exceeded - Limit exceeded. Thank you for using our service. Please consider to buy more credits."
+    HttpError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorModel'
+      description: "
+      parameter-first-name-invalid: The \"first_name\" parameter is invalid. The parameter can only be a string with a length from 1 to 50 chars. \n\n
+      parameter-full-name-invalid: The \"full_name\" parameter is invalid. The parameter can only be a string with a length from 3 to 100 chars. \n\n
+      parameter-email-invalid: The \"email\" parameter is invalid. The parameter can only be a string with a length from 3 to 100 chars and must be a valid email address. \n\n
+      invalid-key: Invalid API key. You can find your personal API key in your account. \n\n
+      invalid-country-code: The given country code is not valid. You can find a list of valid country codes in our API docs. \n\n
+      invalid-ip-address: The given ip address is not valid. Please provide either a valid IPv4 or an IPv6 address. \n\n
+      invalid-json: The JSON from the post data is invalid \n\n
+      invalid-locale: The given locale is not valid. You can find a list of valid country codes in our API docs. \n\n
+      invalid-id: The given id is not valid. An id can be either an integer or a string with 50 chars at max. \n\n
+      mandatory-parameter-missing: Mandatory parameter missing. Either first_name, full_name or email must be set. \n\n
+      content-type-missing: Content-Type missing. Please add a \"Content-Type: application/json\" to your API call. \n\n
+      missing-json: We weren't able to find a json body in your API call. Please make sure the body is sent with a POST request to our API endpoint. \n\n
+      too-many-queries: Too many queries in a single API call.
+      authorization-header-missing: Your query misses the \"Authorization\" header with the bearer token. \n\n
+      invalid-auth-token: Invalid authentication token provided. Please log in to your account to find a list of valid tokens or to create a new one. \n\n
+      "
+paths:
+  /gender/by-first-name:
+    post:
+      summary: Query by a single first name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirstNameRequestModel'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirstNameResultModel'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /gender/by-full-name:
+    post:
+      summary: Query by a single full name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FullNameRequestModel'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullNameResultModel'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /gender/by-email-address:
+    post:
+      summary: Query by a single email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequestModel'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailResultModel'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /gender/by-first-name-multiple:
+    post:
+      summary: Query multiple names in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FirstNameRequestModelMultiple'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FirstNameResultModelMultiple'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /gender/by-full-name-multiple:
+    post:
+      summary: Query multiple names in a single request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FullNameRequestModelMultiple'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullNameResultModelMultiple'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /gender/by-email-address-multiple:
+    post:
+      summary: Query multiple names by email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequestModelMultiple'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailResultModelMultiple'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /country-of-origin:
+    post:
+      summary: Get a name's country of origin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountryOfOriginRequestModel'
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountryOfOriginResultModel'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"
+  /statistic:
+    get:
+      summary: With this call you can pull some stats on your account
+      responses:
+        '200':
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticResultModel'
+        '400':
+          $ref: "#/components/responses/HttpError"
+        '401':
+          $ref: "#/components/responses/LimitExceededError"

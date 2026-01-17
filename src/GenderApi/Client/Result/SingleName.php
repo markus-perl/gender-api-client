@@ -1,162 +1,104 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client\Result;
 
 /**
- * Class SingleName
- * @package GenderApi\Client\Result
+ * Result for single first name gender lookup (API v2)
  */
 class SingleName extends AbstractResult
 {
-    /**
-     * Submitted name
-     *
-     * @var null|string
-     */
-    protected $name = null;
+    protected ?string $firstName = null;
 
-    /**
-     * The determined gender
-     * Possible values: male, female, unknown
-     *
-     * @var null|string
-     */
-    protected $gender = null;
+    protected ?string $gender = null;
 
-    /**
-     * Number of records found in our database which are
-     * matching your request
-     *
-     * @var null|int
-     */
-    protected $samples = null;
+    protected ?int $samples = null;
 
-    /**
-     * This value determines the reliability of our database.
-     * A value of 100 means that the results on your gender
-     * request are 100% accurate.
-     *
-     * @var null|int
-     */
-    protected $accuracy = null;
+    protected ?float $probability = null;
 
-    /**
-     * Time that took the server to process the request.
-     *
-     * @var null|int
-     */
-    protected $durationInMs = null;
+    protected ?string $country = null;
 
-    /**
-     * The determined or submitted country code
-     *
-     * @var null|string
-     */
-    protected $country = null;
-
-    /**
-     * Submitted name
-     *
-     * @return null|string
-     */
-    public function getName()
+    public function getFirstName(): ?string
     {
-        return $this->name;
+        return $this->firstName;
     }
 
     /**
-     * The determined gender
-     * Possible values: male, female, unknown
-     *
-     * @return null|string
+     * @deprecated Use getFirstName() instead
      */
-    public function getGender()
+    public function getName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function getGender(): ?string
     {
         return $this->gender;
     }
 
-    /**
-     * Number of records found in our database which are
-     * matching your request
-     *
-     * @return null|int
-     */
-    public function getSamples()
+    public function getSamples(): ?int
     {
         return $this->samples;
     }
 
     /**
-     * This value determines the reliability of our database.
-     * A value of 100 means that the results on your gender
-     * request are 100% accurate.
-     *
-     * @return null|int
+     * Get probability as percentage (0-100)
      */
-    public function getAccuracy()
+    public function getAccuracy(): ?int
     {
-        return $this->accuracy;
+        if ($this->probability === null) {
+            return null;
+        }
+        return (int) round($this->probability * 100);
     }
 
     /**
-     * Time that took the server to process the request.
-     *
-     * @return null|int
+     * Get raw probability (0.0-1.0)
      */
-    public function getDurationInMs()
+    public function getProbability(): ?float
     {
-        return $this->durationInMs;
+        return $this->probability;
     }
 
-    /**
-     * The determined or submitted country code
-     *
-     * @return null|string
-     */
-    public function getCountry()
+    public function getCountry(): ?string
     {
         return $this->country;
     }
 
     /**
-     * Returns true if a gender was found matching the
-     * submitted name
-     *
-     * @return bool
+     * Returns true if a gender was found matching the submitted name
      */
-    public function genderFound()
+    public function genderFound(): bool
     {
-        return $this->getGender() !== 'unknown' && $this->getGender() !== null;
+        return $this->resultFound && $this->gender !== 'unknown' && $this->gender !== null;
     }
 
-    /**
-     * @param \stdClass $response
-     */
-    public function parseResponse(\stdClass $response)
+    public function parseResponse(\stdClass $response): void
     {
-        if (isset($response->name)) {
-            $this->name = (string)$response->name;
+        $this->parseV2Details($response);
+
+        // v2 API returns first_name
+        if (isset($response->first_name)) {
+            $this->firstName = (string) $response->first_name;
         }
 
         if (isset($response->gender)) {
-            $this->gender = (string)$response->gender;
+            $this->gender = (string) $response->gender;
         }
 
-        if (isset($response->samples)) {
-            $this->samples = (int)$response->samples;
+        if (isset($response->probability)) {
+            $this->probability = (float) $response->probability;
         }
 
-        if (isset($response->accuracy)) {
-            $this->accuracy = (int)$response->accuracy;
+        // samples is in details block
+        if (isset($response->details) && isset($response->details->samples)) {
+            $this->samples = (int) $response->details->samples;
         }
 
-        if (isset($response->duration)) {
-            $this->durationInMs = (int)$response->duration;
-        }
-
-        if (isset($response->country)) {
-            $this->country = $response->country;
+        // country is in details block
+        if (isset($response->details) && isset($response->details->country)) {
+            $this->country = (string) $response->details->country;
         }
     }
-
 }

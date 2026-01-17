@@ -1,83 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client\Result;
 
 /**
- * Class EmailAddress
- * @package GenderApi\Client\Result
+ * Result for email address gender lookup (API v2)
  */
 class EmailAddress extends SingleName
 {
+    protected ?string $lastName = null;
 
-    /**
-     * Last name found in email address
-     *
-     * @var null|string
-     */
-    protected $lastName;
+    protected ?string $emailAddress = null;
 
-    /**
-     * Submitted email address
-     *
-     * @var null|string
-     */
-    protected $emailAddress = null;
-
-    /**
-     * Domain Name without TLD
-     *
-     * @var null|string
-     */
-    protected $emailProvider = null;
-
-    /**
-     * @param \stdClass $response
-     */
-    public function parseResponse(\stdClass $response)
+    public function parseResponse(\stdClass $response): void
     {
         parent::parseResponse($response);
 
-        if (isset($response->lastname)) {
-            $this->lastName = (string)$response->lastname;
+        if (isset($response->last_name)) {
+            $this->lastName = (string) $response->last_name;
         }
 
-        if (isset($response->email)) {
-            $this->emailAddress = (string)$response->email;
-        }
-
-        if (isset($response->mailprovider)) {
-            $this->emailProvider = (string)$response->mailprovider;
+        // Email is in the input block for v2
+        if (isset($response->input) && isset($response->input->email)) {
+            $this->emailAddress = (string) $response->input->email;
         }
     }
 
-    /**
-     * Last name found in email address
-     *
-     * @return null|string
-     */
-    public function getLastName()
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
 
-    /**
-     * Submitted email address
-     *
-     * @return null|string
-     */
-    public function getEmailAddress()
+    public function getEmailAddress(): ?string
     {
         return $this->emailAddress;
     }
-
-    /**
-     * Domain Name without TLD
-     *
-     * @return null|string
-     */
-    public function getMailProvider()
-    {
-        return $this->emailProvider;
-    }
-
 }

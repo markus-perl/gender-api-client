@@ -1,18 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 /**
- * Class CountryList
- * @package GenderApi\Client
+ * Provides country code to name mapping and validation
  */
 class CountryList
 {
-
-    /**
-     * @var array
-     */
-    private $countryList = array(
+    /** @var array<string, string> */
+    private array $countryList = [
         'Afghanistan' => 'AF',
         'Albania' => 'AL',
         'Algeria' => 'DZ',
@@ -287,24 +285,21 @@ class CountryList
         'Zambia' => 'ZM',
         'Zimbabwe' => 'ZW',
         'Åland Islands' => 'AX',
-    );
+    ];
 
     /**
      * Get the country code by country name
-     *
-     * @param string $name
-     * @return null|string
      */
-    public function getCountryCodeByName($name)
+    public function getCountryCodeByName(string $name): ?string
     {
         if (isset($this->countryList[$name])) {
             return $this->countryList[$name];
         }
 
-        //nothing found we try case insensitive
+        // Nothing found, try case-insensitive
         $name = strtolower($name);
         foreach ($this->countryList as $countryName => $countryCode) {
-            if (strtolower($countryName) == $name) {
+            if (strtolower($countryName) === $name) {
                 return $countryCode;
             }
         }
@@ -314,33 +309,26 @@ class CountryList
 
     /**
      * Returns true if the country code is valid
-     *
-     * @param string $countryCode
-     * @return bool
      */
-    public function isValidCountryCode($countryCode)
+    public function isValidCountryCode(string $countryCode): bool
     {
-        return in_array(strtoupper($countryCode), $this->countryList);
+        return in_array(strtoupper($countryCode), $this->countryList, true);
     }
 
     /**
-     * return true if the locale is valid
-     *
-     * @param string $locale
-     * @return bool
+     * Returns true if the locale is valid
      */
-    public function isValidLocale($locale)
+    public function isValidLocale(string $locale): bool
     {
         $locale = strtoupper($locale);
-        if (substr_count($locale, '_')) {
-            $locale = substr($locale, strpos($locale, '_') + 1);
+        if (str_contains($locale, '_')) {
+            $locale = substr($locale, (int) strpos($locale, '_') + 1);
         }
 
-        if (substr_count($locale, '-')) {
-            $locale = substr($locale, strpos($locale, '-') + 1);
+        if (str_contains($locale, '-')) {
+            $locale = substr($locale, (int) strpos($locale, '-') + 1);
         }
 
-        return in_array($locale, $this->countryList);
+        return in_array($locale, $this->countryList, true);
     }
-
 }

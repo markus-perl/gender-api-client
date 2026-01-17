@@ -1,69 +1,92 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client\Downloader;
 
-use \GenderApi\Client\InvalidArgumentException;
+use GenderApi\Client\InvalidArgumentException;
 
 /**
- * Class AbstractDownloader
- * @package GenderApi\Client\Downloader
- *
+ * Abstract base class for HTTP downloaders
  */
 abstract class AbstractDownloader
 {
+    protected ?string $proxyHost = null;
+
+    protected ?int $proxyPort = null;
+
+    protected ?string $apiKey = null;
 
     /**
-     * @var string
+     * Execute an HTTP request
+     *
+     * @param string $url The URL to request
+     * @param string $method HTTP method (GET or POST)
+     * @param array<string, mixed>|null $body JSON body for POST requests
+     * @return string Response body
+     * @throws NetworkErrorException
      */
-    protected $proxyHost = '';
+    abstract public function request(string $url, string $method = 'GET', ?array $body = null): string;
 
     /**
-     * @var int
+     * Set the API key for Bearer authentication
      */
-    protected $proxyPort = 3128;
+    public function setApiKey(string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
+    }
 
     /**
-     * @param string $url
-     * @return string
+     * Get the API key
      */
-    abstract public function download($url);
+    public function getApiKey(): ?string
+    {
+        return $this->apiKey;
+    }
 
     /**
      * Set a proxy server for every request.
      *
-     * @param string|null $host
-     * @param int|null $port
      * @throws InvalidArgumentException
      */
-    public function setProxy($host = null, $port = null)
+    public function setProxy(?string $host = null, ?int $port = null): void
     {
-        if (!$host) {
+        if ($host === null) {
             $this->proxyHost = null;
             $this->proxyPort = null;
             return;
         }
 
-        if (!is_string($host)) {
-            throw new InvalidArgumentException('host expects a string, ' . gettype($host) . ' given.');
-        }
-
-        if (!is_int($port)) {
-            throw new InvalidArgumentException('port expects an integer, ' . gettype($port) . ' given.');
-        }
-
         $this->proxyHost = $host;
-        $this->proxyPort = $port;
+        $this->proxyPort = $port ?? 3128;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getProxy()
+    public function getProxy(): ?string
     {
-        if ($this->proxyHost) {
+        if ($this->proxyHost !== null) {
             return $this->proxyHost . ':' . $this->proxyPort;
         }
 
         return null;
+    }
+
+    /**
+     * Build authorization headers
+     *
+     * @return array<string>
+     */
+    protected function getAuthHeaders(): array
+    {
+        $headers = [
+            'User-Agent: gender-api-client/2.0',
+            'Content-Type: application/json',
+            'Accept: application/json',
+        ];
+
+        if ($this->apiKey !== null) {
+            $headers[] = 'Authorization: Bearer ' . $this->apiKey;
+        }
+
+        return $headers;
     }
 }

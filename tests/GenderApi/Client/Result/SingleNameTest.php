@@ -1,53 +1,59 @@
 <?php
 
-namespace GenderApi\Client\Downloader;
+declare(strict_types=1);
 
-use GenderApi\Client\Result\SingleName;
+namespace GenderApi\Client\Result;
+
 use GenderApiTest\TestCase;
 
 /**
- * Class EmailAddressTest
- * @package GenderApi\Client\Downloader
+ * Tests for SingleName result parser (API v2)
  */
 class SingleNameTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testParseResponse()
+    public function testParseResponse(): void
     {
-        $response = json_decode('{"name":"tiffany","country":"IT","gender":"female","samples":191,"accuracy":98,"duration":"27ms"}');
+        $result = new SingleName();
+        $result->parseResponse((object) [
+            'input' => (object) ['first_name' => 'markus'],
+            'details' => (object) [
+                'credits_used' => 1,
+                'duration' => '25ms',
+                'samples' => 26494,
+                'country' => 'DE',
+            ],
+            'result_found' => true,
+            'first_name' => 'Markus',
+            'probability' => 0.99,
+            'gender' => 'male',
+        ]);
 
-        $snq = new SingleName();
-        $snq->parseResponse($response);
-
-        $this->assertEquals('IT', $snq->getCountry());
-        $this->assertEquals('female', $snq->getGender());
-        $this->assertEquals(27, $snq->getDurationInMs());
-        $this->assertEquals('tiffany', $snq->getName());
-        $this->assertEquals(191, $snq->getSamples());
-        $this->assertEquals(98, $snq->getAccuracy());
-        $this->assertTrue($snq->genderFound());
+        $this->assertEquals('Markus', $result->getFirstName());
+        $this->assertEquals('male', $result->getGender());
+        $this->assertEquals(0.99, $result->getProbability());
+        $this->assertEquals(99, $result->getAccuracy());
+        $this->assertEquals(26494, $result->getSamples());
+        $this->assertEquals('DE', $result->getCountry());
+        $this->assertEquals(25, $result->getDurationInMs());
+        $this->assertEquals(1, $result->getCreditsUsed());
+        $this->assertTrue($result->isResultFound());
+        $this->assertTrue($result->genderFound());
     }
 
-    /**
-     *
-     */
-    public function testParseResponseInvalidName()
+    public function testParseResponseUnknownGender(): void
     {
-        $response = json_decode('{"name":"greeeeeee","gender":"unknown","samples":0,"accuracy":0,"duration":"30ms"}');
+        $result = new SingleName();
+        $result->parseResponse((object) [
+            'input' => (object) ['first_name' => 'xyz'],
+            'details' => (object) ['credits_used' => 1, 'duration' => '5ms', 'samples' => 0],
+            'result_found' => false,
+            'first_name' => null,
+            'probability' => null,
+            'gender' => 'unknown',
+        ]);
 
-        $snq = new SingleName();
-        $snq->parseResponse($response);
-
-        $this->assertNull($snq->getCountry());
-        $this->assertEquals('unknown', $snq->getGender());
-        $this->assertEquals(30, $snq->getDurationInMs());
-        $this->assertEquals('greeeeeee', $snq->getName());
-        $this->assertEquals(0, $snq->getSamples());
-        $this->assertEquals(0, $snq->getAccuracy());
-        $this->assertFalse($snq->genderFound());
+        $this->assertEquals('unknown', $result->getGender());
+        $this->assertFalse($result->isResultFound());
+        $this->assertFalse($result->genderFound());
     }
-
 }

@@ -1,2 +1,9 @@
+.env
 vendor/
 composer.lock
+.phpunit.cache/
+.idea/
+tests-integration/accuracy-check.csv
+bin/run-accuracy-test.sh
+bin/run-full-name-accuracy-test.sh
+tests-integration/run-test-full-name.php

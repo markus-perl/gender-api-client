@@ -1,99 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client\Result\CountryOfOrigin;
 
-
+/**
+ * Country of origin data for a name
+ */
 class Country
 {
-    /**
-     * @var string
-     */
-    private $countryName;
+    private ?string $countryName = null;
 
-    /**
-     * @var string
-     */
-    private $country;
+    private ?string $country = null;
 
-    /**
-     * @var string
-     */
-    private $continentalRegion;
+    private ?string $continentalRegion = null;
 
-    /**
-     * @var string
-     */
-    private $statisticalRegion;
+    private ?string $statisticalRegion = null;
 
-    /**
-     * @var float
-     */
-    private $probability;
+    private ?float $probability = null;
 
-    /**
-     * @param \stdClass $response
-     */
-    public function parseResponse(\stdClass $response)
+    public function parseResponse(\stdClass $response): void
     {
         if (isset($response->country_name)) {
-            $this->countryName = (string)$response->country_name;
+            $this->countryName = (string) $response->country_name;
         }
 
         if (isset($response->country)) {
-            $this->country = (string)$response->country;
+            $this->country = (string) $response->country;
         }
 
         if (isset($response->continental_region)) {
-            $this->continentalRegion = (string)$response->continental_region;
+            $this->continentalRegion = (string) $response->continental_region;
         }
 
         if (isset($response->statistical_region)) {
-            $this->statisticalRegion = (string)$response->statistical_region;
+            $this->statisticalRegion = (string) $response->statistical_region;
         }
 
         if (isset($response->probability)) {
-            $this->probability = (float)$response->probability;
+            $this->probability = (float) $response->probability;
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getCountryName()
+    public function getCountryName(): ?string
     {
         return $this->countryName;
     }
 
-    /**
-     * @return string
-     */
-    public function getCountry()
+    public function getCountry(): ?string
     {
         return $this->country;
     }
 
-    /**
-     * @return string
-     */
-    public function getContinentalRegion()
+    public function getContinentalRegion(): ?string
     {
         return $this->continentalRegion;
     }
 
-    /**
-     * @return string
-     */
-    public function getStatisticalRegion()
+    public function getStatisticalRegion(): ?string
     {
         return $this->statisticalRegion;
     }
 
-    /**
-     * @return float
-     */
-    public function getProbability()
+    public function getProbability(): ?float
     {
         return $this->probability;
     }
-
 }

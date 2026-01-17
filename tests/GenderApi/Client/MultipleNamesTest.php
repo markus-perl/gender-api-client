@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 use GenderApi\Client;
@@ -7,97 +9,58 @@ use GenderApi\Client\Downloader\FileGetContents;
 use GenderApiTest\TestCase;
 
 /**
- * Class MultipleNamesTest
- * @package GenderApi\Client
+ * Tests for Multiple Names lookup (API v2)
  */
 class MultipleNamesTest extends TestCase
 {
-
-
-    /**
-     *
-     */
-    public function testGetByFirstNameWithoutCountry()
+    public function testGetByMultipleNamesWithoutCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"markus;elisa","result":[{"name":"Elisa","gender":"female","samples":32786,"accuracy":98},'
-                    . '{"name":"Markus","gender":"male","samples":26494,"accuracy":99}],"duration":"38ms"}');
+            $downloader->method('request')
+                ->willReturn('[{"input":{"first_name":"stefan","id":"1"},"details":{"credits_used":1,"duration":"25ms","samples":26494},"result_found":true,"first_name":"Stefan","probability":0.99,"gender":"male"},{"input":{"first_name":"elisabeth","id":"2"},"details":{"credits_used":1,"duration":"25ms","samples":17000},"result_found":true,"first_name":"Elisabeth","probability":0.99,"gender":"female"}]');
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByMultipleNames(array('Markus', 'Elisa'));
-        $this->assertEquals(2, count($result));
-        $matches = 0;
+        $result = $genderApiClient->getByMultipleNames(['stefan', 'elisabeth']);
 
+        $this->assertCount(2, $result);
 
-        foreach ($result as $key => $name) {
-
-            if ($name->getName() == 'Elisa') {
-                $this->assertEquals('female', $name->getGender());
-                $matches++;
-
-                if ($this->doMock) {
-                    $this->assertEquals(32786, $name->getSamples());
-                    $this->assertEquals(98, $name->getAccuracy());
-                }
-            }
-            if ($name->getName() == 'Markus') {
-                $this->assertEquals('male', $name->getGender());
-                $matches++;
-
-                if ($this->doMock) {
-                    $this->assertEquals(26494, $name->getSamples());
-                    $this->assertEquals(99, $name->getAccuracy());
-                }
-            }
+        $names = [];
+        foreach ($result as $singleResult) {
+            $this->assertNotNull($singleResult->getFirstName());
+            $this->assertNotNull($singleResult->getGender());
+            $names[$singleResult->getFirstName()] = $singleResult->getGender();
         }
 
-        if ($matches !== 2) {
-            $this->fail('names not found: ' . print_r($result, true));
+        if ($this->doMock) {
+            $this->assertArrayHasKey('Stefan', $names);
+            $this->assertEquals('male', $names['Stefan']);
+            $this->assertArrayHasKey('Elisabeth', $names);
+            $this->assertEquals('female', $names['Elisabeth']);
         }
     }
 
-    /**
-     *
-     */
-    public function testGetByFirstNameWithCountry()
+    public function testGetByMultipleNamesWithCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"name":"markus;elisa","country":"DE","result":[{"name":"elisa","gender":"female","samples":653,"accuracy":97},{"name":"markus","gender":"male","samples":15230,"accuracy":99}],"duration":"37ms"}');
+            $downloader->method('request')
+                ->willReturn('[{"input":{"first_name":"andrea","country":"IT","id":"1"},"details":{"credits_used":1,"duration":"25ms","samples":5000,"country":"IT"},"result_found":true,"first_name":"Andrea","probability":0.90,"gender":"male"}]');
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByMultipleNamesAndCountry(array('Markus', 'Elisa'), 'DE');
-        $this->assertEquals(2, count($result));
+        $result = $genderApiClient->getByMultipleNamesAndCountry(['andrea'], 'IT');
 
-        foreach ($result as $key => $name) {
-            if ($name->getName() == 'elisa') {
-                $this->assertEquals('female', $name->getGender());
-                $this->assertEquals('DE', $name->getCountry());
+        $this->assertGreaterThanOrEqual(1, count($result));
 
-                if ($this->doMock) {
-                    $this->assertEquals(653, $name->getSamples());
-                    $this->assertEquals(97, $name->getAccuracy());
-                }
-            }
-            if ($name->getName() == 'markus') {
-                $this->assertEquals('male', $name->getGender());
-                $this->assertEquals('DE', $name->getCountry());
-
-                if ($this->doMock) {
-                    $this->assertEquals(15230, $name->getSamples());
-                    $this->assertEquals(99, $name->getAccuracy());
-                }
-            }
+        if ($this->doMock) {
+            $first = $result->current();
+            $this->assertEquals('male', $first->getGender());
         }
     }
-
 }

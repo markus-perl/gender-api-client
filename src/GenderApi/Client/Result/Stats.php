@@ -1,144 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client\Result;
 
 /**
- * Class Stats
- * @package GenderApi\Client\Result
+ * Result for API stats/usage lookup (API v2)
  */
 class Stats extends AbstractResult
 {
+    protected ?bool $isLimitReached = null;
 
-    /**
-     * Your private server key
-     *
-     * @var null|string
-     */
-    protected $key = null;
+    protected ?int $remainingCredits = null;
 
-    /**
-     * Returns true if there are no more requests left
-     *
-     * @var null|bool
-     */
-    protected $isLimitReached = null;
+    protected ?int $usageLastMonth = null;
 
-    /**
-     * Count remaining requests
-     *
-     * @var null|int
-     */
-    protected $remainingRequests = null;
-
-    /**
-     * Requests left at the beginning of the month
-     *
-     * @var null|int
-     */
-    protected $amountMonthStart = null;
-
-    /**
-     * Requests bought this month
-     *
-     * @var null|int
-     */
-    protected $amountMonthBought = null;
-
-    /**
-     * Time that took the server to process the request.
-     *
-     * @var null|int
-     */
-    protected $durationInMs = null;
-
-    /**
-     * Your private server key
-     *
-     * @return null|string
-     */
-    public function getKey()
-    {
-        return $this->key;
-    }
-
-    /**
-     * Returns true if there are no more requests left
-     *
-     * @return null|bool
-     */
-    public function isLimitReached()
+    public function isLimitReached(): ?bool
     {
         return $this->isLimitReached;
     }
 
     /**
-     * Count remaining requests
-     *
-     * @return null|int
+     * Get remaining API credits
      */
-    public function getRemainingRequests()
+    public function getRemainingCredits(): ?int
     {
-        return $this->remainingRequests;
+        return $this->remainingCredits;
     }
 
     /**
-     * Requests left at the beginning of the month
-     *
-     * @return null|int
+     * @deprecated Use getRemainingCredits() instead
      */
-    public function getAmountMonthStart()
+    public function getRemainingRequests(): ?int
     {
-        return $this->amountMonthStart;
+        return $this->remainingCredits;
     }
 
-    /**
-     * Requests bought this month
-     *
-     * @return null|int
-     */
-    public function getAmountMonthBought()
+    public function getUsageLastMonth(): ?int
     {
-        return $this->amountMonthBought;
+        return $this->usageLastMonth;
     }
 
-    /**
-     * Time that took the server to process the request.
-     *
-     * @return null|int
-     */
-    public function getDurationInMs()
+    public function parseResponse(\stdClass $response): void
     {
-        return $this->durationInMs;
-    }
-
-    /**
-     * @param \stdClass $response
-     */
-    public function parseResponse(\stdClass $response)
-    {
-        if (isset($response->key)) {
-            $this->key = (string)$response->key;
-        }
+        $this->parseV2Details($response);
 
         if (isset($response->is_limit_reached)) {
-            $this->isLimitReached = (bool)$response->is_limit_reached;
+            $this->isLimitReached = (bool) $response->is_limit_reached;
         }
 
-        if (isset($response->remaining_requests)) {
-            $this->remainingRequests = (int)$response->remaining_requests;
+        if (isset($response->remaining_credits)) {
+            $this->remainingCredits = (int) $response->remaining_credits;
         }
 
-        if (isset($response->amount_month_start)) {
-            $this->amountMonthStart = (int)$response->amount_month_start;
-        }
-
-        if (isset($response->amount_month_bought)) {
-            $this->amountMonthBought = $response->amount_month_bought;
-        }
-
-        if (isset($response->duration)) {
-            $this->durationInMs = (int)$response->duration;
+        if (isset($response->usage_last_month) && isset($response->usage_last_month->credits_used)) {
+            $this->usageLastMonth = (int) $response->usage_last_month->credits_used;
         }
     }
-
 }

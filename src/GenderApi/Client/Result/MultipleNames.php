@@ -1,105 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client\Result;
 
-use GenderApi\Client\RuntimeException;
+use Countable;
+use Iterator;
 
 /**
- * Class MultipleNames
- * @package GenderApi\Client\Result
+ * Result for multiple names gender lookup (API v2)
+ *
+ * @implements Iterator<int, SingleName>
  */
-class MultipleNames extends AbstractResult implements \Iterator, \Countable
+class MultipleNames extends AbstractResult implements Iterator, Countable
 {
+    /** @var array<int, SingleName> */
+    private array $names = [];
 
-    /**
-     * @var SingleName[]
-     */
-    private $names = array();
+    private int $position = 0;
 
-    /**
-     * @var int
-     */
-    private $position = 0;
-
-    /**
-     * MultipleNames constructor.
-     */
-    public function __construct()
+    public function rewind(): void
     {
         $this->position = 0;
     }
 
-    /**
-     *
-     */
-    public function rewind()
-    {
-        $this->position = 0;
-    }
-
-    /**
-     * @return SingleName
-     */
-    public function current()
+    public function current(): SingleName
     {
         return $this->names[$this->position];
     }
 
-    /**
-     * @return int
-     */
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
 
-    /**
-     *
-     */
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
 
-    /**
-     * @return bool
-     */
-    public function valid()
+    public function valid(): bool
     {
         return isset($this->names[$this->position]);
     }
 
-    /**
-     * @return int
-     */
-    public function count()
+    public function count(): int
     {
         return count($this->names);
     }
 
-    /**
-     * @param \stdClass $response
-     */
-    public function parseResponse(\stdClass $response)
+    public function parseResponse(\stdClass $response): void
     {
-        $result = array();
+        $result = [];
 
-        if (isset($response->result) && is_array($response->result)) {
-            foreach ($response->result as $name) {
+        // v2 API returns array of results directly (wrapped in 'results' by Query)
+        $items = $response->results ?? [];
 
-                if (isset($response->country)) {
-                    $name->country = $response->country;
-                }
+        if (!is_array($items)) {
+            return;
+        }
 
-                $entry = new SingleName();
-                $entry->parseResponse($name);
-                $result[] = $entry;
+        foreach ($items as $item) {
+            if (!$item instanceof \stdClass) {
+                $item = (object) $item;
             }
-        } else {
-            throw new RuntimeException('Result not set');
+
+            $entry = new SingleName();
+            $entry->parseResponse($item);
+            $result[] = $entry;
         }
 
         $this->names = $result;
     }
-
 }

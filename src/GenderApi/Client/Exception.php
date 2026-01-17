@@ -1,11 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 /**
- * Class Exception
- * @package GenderApi\Client
+ * Base exception for client-side errors
  */
 class Exception extends \GenderApi\Exception
 {
-
 }

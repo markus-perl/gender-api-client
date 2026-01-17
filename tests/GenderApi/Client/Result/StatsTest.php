@@ -1,36 +1,29 @@
 <?php
 
-namespace GenderApi\Client\Downloader;
+declare(strict_types=1);
 
-use GenderApi\Client\Result\EmailAddress;
-use GenderApi\Client\Result\SingleName;
-use GenderApi\Client\Result\Split;
-use GenderApi\Client\Result\Stats;
+namespace GenderApi\Client\Result;
+
 use GenderApiTest\TestCase;
 
 /**
- * Class StatsTest
- * @package GenderApi\Client\Downloader
+ * Tests for Stats result parser (API v2)
  */
 class StatsTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testParseResponse()
+    public function testParseResponse(): void
     {
-        $response = json_decode('{"key":"XXXXXXXXXXXXX","is_limit_reached":false,"remaining_requests":2323,"amount_month_start":2332,"amount_month_bought":0,"duration":"19ms"}');
+        $result = new Stats();
+        $result->parseResponse((object) [
+            'is_limit_reached' => false,
+            'remaining_credits' => 23456,
+            'details' => (object) ['credits_used' => 0, 'duration' => '32ms'],
+            'usage_last_month' => (object) ['date' => '2021-09', 'credits_used' => 30446],
+        ]);
 
-        $sq = new Stats();
-        $sq->parseResponse($response);
-
-        $this->assertEquals('XXXXXXXXXXXXX', $sq->getKey());
-        $this->assertFalse( $sq->isLimitReached());
-        $this->assertEquals(2323, $sq->getRemainingRequests());
-        $this->assertEquals(2332, $sq->getAmountMonthStart());
-        $this->assertEquals(0, $sq->getAmountMonthBought());
-        $this->assertEquals(19, $sq->getDurationInMs());
+        $this->assertFalse($result->isLimitReached());
+        $this->assertEquals(23456, $result->getRemainingCredits());
+        $this->assertEquals(30446, $result->getUsageLastMonth());
+        $this->assertEquals(32, $result->getDurationInMs());
     }
-
 }

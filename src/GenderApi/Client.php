@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi;
 
 use GenderApi\Client\CountryList;
@@ -10,116 +12,86 @@ use GenderApi\Client\RuntimeException;
 use GenderApi\Client\InvalidArgumentException;
 
 /**
- * Class Client
+ * Gender-API.com PHP Client v2
+ *
  * @package GenderApi
  */
 class Client
 {
-    /**
-     * @var string
-     */
-    protected $apiKey = null;
+    protected ?string $apiKey = null;
 
-    /**
-     * @var string
-     */
-    protected $apiUrl = 'https://gender-api.com/';
+    protected string $apiUrl = 'https://gender-api.com/v2';
 
-    /**
-     * @var CountryList
-     */
-    protected $countryList = null;
+    protected CountryList $countryList;
 
-    /**
-     * @var Downloader\AbstractDownloader
-     */
-    protected $downloader = null;
+    protected Downloader\AbstractDownloader $downloader;
 
     /**
      * Client constructor.
      *
-     * @param null|string $apiKey
      * @throws InvalidArgumentException
      */
-    public function __construct($apiKey = null)
+    public function __construct(?string $apiKey = null)
     {
-        if ($apiKey) {
-            $this->setApiKey($apiKey);
-        }
-
-        $envApiUrl = getenv('APIURL');
-        if ($envApiUrl) {
-            $this->setApiUrl($envApiUrl);
-        }
-
         $this->countryList = new CountryList();
 
+        // Initialize downloader first (before setApiKey which needs it)
         if (function_exists('curl_setopt')) {
             $this->downloader = new Downloader\Curl();
         } else {
             $this->downloader = new Downloader\FileGetContents();
         }
+
+        if ($apiKey !== null) {
+            $this->setApiKey($apiKey);
+        }
+
+        $envApiUrl = getenv('APIURL');
+        if ($envApiUrl !== false && $envApiUrl !== '') {
+            $this->setApiUrl($envApiUrl);
+        }
     }
 
-    /**
-     * @return string
-     */
-    public function getApiKey()
+    public function getApiKey(): ?string
     {
         return $this->apiKey;
     }
 
     /**
-     * @param string $apiKey
      * @throws InvalidArgumentException
      */
-    public function setApiKey($apiKey)
+    public function setApiKey(string $apiKey): void
     {
-        if (!is_string($apiKey)) {
-            throw new InvalidArgumentException('apiKey expects a string, ' . gettype($apiKey) . ' given.');
-        }
-
         $this->apiKey = $apiKey;
+        $this->downloader->setApiKey($apiKey);
     }
 
-
     /**
-     * @param string $apiUrl
      * @throws InvalidArgumentException
      */
-    public function setApiUrl($apiUrl)
+    public function setApiUrl(string $apiUrl): void
     {
-        if (!is_string($apiUrl)) {
-            throw new InvalidArgumentException('apiUrl expects a string, ' . gettype($apiUrl) . ' given.');
-        }
-
         if (filter_var($apiUrl, FILTER_VALIDATE_URL) === false) {
             throw new InvalidArgumentException('apiUrl does not contain a valid url.');
         }
 
-        $this->apiUrl = $apiUrl;
+        $this->apiUrl = rtrim($apiUrl, '/');
     }
 
-    /**
-     * @return string
-     */
-    public function getApiUrl()
+    public function getApiUrl(): string
     {
         return $this->apiUrl;
     }
 
-    /**
-     * @param Downloader\AbstractDownloader $downloader
-     */
-    public function setDownloader(Downloader\AbstractDownloader $downloader)
+    public function setDownloader(Downloader\AbstractDownloader $downloader): void
     {
         $this->downloader = $downloader;
+        if ($this->apiKey !== null) {
+            $this->downloader->setApiKey($this->apiKey);
+        }
     }
 
-    /**
-     * @return Downloader\AbstractDownloader
-     */
-    public function getDownloader()
+    public function getDownloader(): Downloader\AbstractDownloader
     {
         return $this->downloader;
     }
@@ -127,272 +99,302 @@ class Client
     /**
      * Set a proxy server for every request.
      *
-     * @param string|null $host
-     * @param int|null $port
      * @throws InvalidArgumentException
      */
-    public function setProxy($host = null, $port = null)
+    public function setProxy(?string $host = null, ?int $port = null): void
     {
         $this->downloader->setProxy($host, $port);
     }
 
+    // ========================================================================
+    // FIRST NAME ENDPOINTS
+    // ========================================================================
+
     /**
-     * @param $firstName
-     * @param null|string $country
-     * @param null|string $ipAddress
-     * @param null|string $locale
+     * Get gender by first name
+     *
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
-     * @return Result\SingleName
      */
-    protected function queryByFirstName($firstName, $country = null, $ipAddress = null, $locale = null)
+    public function getByFirstName(string $firstName): Result\SingleName
     {
+        return $this->queryByFirstName($firstName);
+    }
 
-        $e = new InvalidArgumentException('firstName expects a string with a minimum length of 1 and a max length of 100, ' . gettype($firstName) . ' with a length of ' . strlen($firstName) . ' given.');
-        if (!is_string($firstName)) {
-            throw $e;
-        }
+    /**
+     * Get gender by first name and country
+     *
+     * @param string $country ISO 3166-2 country code. Example: 'US'
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws Client\ApiException
+     */
+    public function getByFirstNameAndCountry(string $firstName, string $country): Result\SingleName
+    {
+        return $this->queryByFirstName($firstName, $country);
+    }
 
-        if (strlen($firstName) < 1 && strlen($firstName) > 100) {
-            throw $e;
+    /**
+     * Get gender by first name, localized by client IP address
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws Client\ApiException
+     */
+    public function getByFirstNameAndClientIpAddress(string $firstName, string $ipAddress): Result\SingleName
+    {
+        return $this->queryByFirstName($firstName, null, $ipAddress);
+    }
+
+    /**
+     * Get gender by first name, localized by browser locale
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws Client\ApiException
+     */
+    public function getByFirstNameAndLocale(string $firstName, string $locale): Result\SingleName
+    {
+        return $this->queryByFirstName($firstName, null, null, $locale);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws Client\ApiException
+     */
+    protected function queryByFirstName(
+        string $firstName,
+        ?string $country = null,
+        ?string $ipAddress = null,
+        ?string $locale = null
+    ): Result\SingleName {
+        $length = strlen($firstName);
+        if ($length < 1 || $length > 100) {
+            throw new InvalidArgumentException(
+                "firstName expects a string with a minimum length of 1 and a max length of 100, given length: {$length}."
+            );
         }
 
         $countryCode = $this->getCountryCode($country);
         $ipAddress = $this->sanitizeIpAddress($ipAddress);
         $locale = $this->sanitizeLocale($locale);
 
-        $query = $this->createQuery();
-        $query->addParam('name', $firstName);
-        $query->addParam('country', $countryCode);
-        $query->addParam('ip', $ipAddress);
-        $query->addParam('locale', $locale);
+        $query = $this->createQuery('/gender/by-first-name');
+        $query->setBodyParam('first_name', $firstName);
+        $query->setBodyParam('country', $countryCode);
+        $query->setBodyParam('ip', $ipAddress);
+        $query->setBodyParam('locale', $locale);
 
         $result = new Result\SingleName();
         $query->execute($result);
         return $result;
     }
 
+    // ========================================================================
+    // MULTIPLE FIRST NAMES ENDPOINT
+    // ========================================================================
+
     /**
-     * @param string $firstName
+     * Get gender for multiple first names
+     *
+     * @param array<string> $firstNames
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
-     * @return Result\SingleName
      */
-    public function getByFirstName($firstName)
+    public function getByMultipleNames(array $firstNames): Result\MultipleNames
     {
-        return $this->queryByFirstName($firstName, null, null);
+        return $this->getByMultipleNamesAndCountry($firstNames, null);
     }
 
     /**
-     * @param string $firstName
-     * @param string $country ISO 3166-2 country code. Example: 'US'
+     * Get gender for multiple first names with country filter
+     *
+     * @param array<string> $firstNames
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
-     * @throws Client\ApiException
-     * @return Result\SingleName
-     */
-    public function getByFirstNameAndCountry($firstName, $country)
-    {
-        return $this->queryByFirstName($firstName, $country, null);
-    }
-
-    /**
-     * @param string $firstName
-     * @param string $ipAddress
-     * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
-     * @throws Client\ApiException
-     * @return Result\SingleName
-     */
-    public function getByFirstNameAndClientIpAddress($firstName, $ipAddress)
-    {
-        return $this->queryByFirstName($firstName, null, $ipAddress);
-    }
-
-    /**
-     * @param string $firstName
-     * @param string $locale
-     * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
-     * @throws Client\ApiException
-     * @return Result\SingleName
-     */
-    public function getByFirstNameAndLocale($firstName, $locale)
-    {
-        return $this->queryByFirstName($firstName, null, null, $locale);
-    }
-
-    /**
-     * @param array $firstNames
-     * @param null $country
-     * @return Result\MultipleNames
-     * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
      */
-    public function getByMultipleNames(array $firstNames)
+    public function getByMultipleNamesAndCountry(array $firstNames, ?string $country): Result\MultipleNames
     {
-        return $this->getByMultipleNamesAndCountry($firstNames, '');
-    }
-
-    /**
-     * @param array $firstNames
-     * @param $country
-     * @return Result\MultipleNames
-     * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
-     * @throws Client\ApiException
-     */
-    public function getByMultipleNamesAndCountry(array $firstNames, $country)
-    {
-
-        $e = new InvalidArgumentException('firstNames expects an array with strings with a minimum length of 1 and a max length of 100');
-        foreach ($firstNames as $firstName) {
-            if (!is_string($firstName)) {
-                throw $e;
-            }
-
-            if (strlen($firstName) < 1 && strlen($firstName) > 100) {
-                throw $e;
-            }
-        }
-
+        $body = [];
         $countryCode = $this->getCountryCode($country);
 
-        $query = $this->createQuery();
-        $query->addParam('name', implode(';', $firstNames));
-        $query->addParam('country', $countryCode);
-        $query->addParam('multi', 'true');
+        foreach ($firstNames as $index => $firstName) {
+            $firstName = (string) $firstName;
+
+            $length = strlen($firstName);
+            if ($length < 1 || $length > 100) {
+                throw new InvalidArgumentException(
+                    'firstNames expects an array with strings with a minimum length of 1 and a max length of 100'
+                );
+            }
+
+            $item = [
+                'id' => (string) ($index + 1),
+                'first_name' => $firstName,
+            ];
+            if ($countryCode !== null) {
+                $item['country'] = $countryCode;
+            }
+            $body[] = $item;
+        }
+
+        $query = $this->createQuery('/gender/by-first-name-multiple');
+        $query->setBody($body);
 
         $result = new Result\MultipleNames();
         $query->execute($result);
         return $result;
     }
 
+    // ========================================================================
+    // FULL NAME (SPLIT) ENDPOINTS
+    // ========================================================================
+
     /**
-     * @param string $firstAndLastName
-     * @param bool $strict
-     * @return Result\Split
+     * Get gender by full name (first name + last name)
+     *
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
      */
-    public function getByFirstNameAndLastName($firstAndLastName, $strict = false)
+    public function getByFirstNameAndLastName(string $fullName): Result\Split
     {
-        return $this->getByFirstNameAndLastNameAndCountry($firstAndLastName, '', $strict);
+        return $this->getByFirstNameAndLastNameAndCountry($fullName, null);
     }
 
     /**
-     * @param string $firstAndLastName
-     * @param string $country
-     * @param bool $strict
-     * @return Result\Split
+     * Get gender by full name with country filter
+     *
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
      */
-    public function getByFirstNameAndLastNameAndCountry($firstAndLastName, $country, $strict = false)
+    public function getByFirstNameAndLastNameAndCountry(string $fullName, ?string $country): Result\Split
     {
-        $e = new InvalidArgumentException('firstAndLastName expects a string with a minimum length of 1 and a max length of 150, ' . gettype($firstAndLastName) . ' with a length of ' . strlen($firstAndLastName) . ' given.');
-        if (!is_string($firstAndLastName)) {
-            throw $e;
-        }
-
-        if (!is_bool($strict)) {
-            throw new InvalidArgumentException('strict expects a boolean, ' . gettype($strict) . ' given.');
-        }
-
-        if (strlen($firstAndLastName) < 1 && strlen($firstAndLastName) > 150) {
-            throw $e;
+        $length = strlen($fullName);
+        if ($length < 1 || $length > 150) {
+            throw new InvalidArgumentException(
+                "fullName expects a string with a minimum length of 1 and a max length of 150, given length: {$length}."
+            );
         }
 
         $countryCode = $this->getCountryCode($country);
 
-        $query = $this->createQuery();
-        $query->addParam('split', $firstAndLastName);
-        $query->addParam('country', $countryCode);
-        $query->addParam('strict', (int)$strict);
+        $query = $this->createQuery('/gender/by-full-name');
+        $query->setBodyParam('full_name', $fullName);
+        $query->setBodyParam('country', $countryCode);
 
         $result = new Result\Split();
         $query->execute($result);
         return $result;
     }
 
+    // ========================================================================
+    // EMAIL ADDRESS ENDPOINTS
+    // ========================================================================
+
     /**
-     * @param string $emailAddress
+     * Get gender by email address
+     *
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
-     * @return Result\EmailAddress
      */
-    public function getByEmailAddress($emailAddress)
+    public function getByEmailAddress(string $emailAddress): Result\EmailAddress
     {
-        return $this->getByEmailAddressAndCountry($emailAddress, '');
+        return $this->getByEmailAddressAndCountry($emailAddress, null);
     }
 
     /**
-     * @param string $emailAddress
-     * @param string $country
-     * @return Result\EmailAddress
+     * Get gender by email address with country filter
+     *
      * @throws InvalidArgumentException
-     * @throws Client\RuntimeException
+     * @throws RuntimeException
      * @throws Client\ApiException
      */
-    public function getByEmailAddressAndCountry($emailAddress, $country)
+    public function getByEmailAddressAndCountry(string $emailAddress, ?string $country): Result\EmailAddress
     {
-
-        $e = new InvalidArgumentException('emailAddress expects a string with a valid email address and a minimum length of 1 and a max length of 100, ' . gettype($emailAddress) . ' with a length of ' . strlen($emailAddress) . ' given.');
-
-        if (!is_string($emailAddress)) {
-            throw $e;
-        }
-
-        if (strlen($emailAddress) < 1 && strlen($emailAddress) > 100) {
-            throw $e;
+        $length = strlen($emailAddress);
+        if ($length < 1 || $length > 100) {
+            throw new InvalidArgumentException(
+                "emailAddress expects a string with a minimum length of 1 and a max length of 100, given length: {$length}."
+            );
         }
 
         $countryCode = $this->getCountryCode($country);
         $emailAddress = $this->sanitizeEmailAddress($emailAddress);
 
-        $query = $this->createQuery();
-        $query->addParam('email', $emailAddress);
-        $query->addParam('country', $countryCode);
+        $query = $this->createQuery('/gender/by-email-address');
+        $query->setBodyParam('email', $emailAddress);
+        $query->setBodyParam('country', $countryCode);
 
         $result = new Result\EmailAddress();
         $query->execute($result);
         return $result;
     }
 
+    // ========================================================================
+    // STATISTICS ENDPOINT
+    // ========================================================================
+
     /**
-     * @throws Client\RuntimeException
+     * Get account statistics (remaining credits, usage, etc.)
+     *
+     * @throws RuntimeException
      * @throws Client\ApiException
-     * @return Result\Stats
      */
-    public function getStats()
+    public function getStats(): Result\Stats
     {
-        $query = $this->createQuery();
-        $query->setMethod('get-stats');
+        $query = $this->createQuery('/statistic', 'GET');
 
         $result = new Result\Stats();
         $query->execute($result);
         return $result;
     }
 
+    // ========================================================================
+    // COUNTRY OF ORIGIN ENDPOINT
+    // ========================================================================
+
     /**
-     * @param null|string $ipAddress
-     * @return null|string
+     * Get country of origin for a first name
+     *
      * @throws InvalidArgumentException
+     * @throws RuntimeException
+     * @throws Client\ApiException
      */
-    protected function sanitizeIpAddress($ipAddress = null)
+    public function getCountryOfOrigin(string $firstName): Result\CountryOfOrigin
     {
-        if (!$ipAddress) {
-            return null;
+        $length = strlen($firstName);
+        if ($length < 1 || $length > 100) {
+            throw new InvalidArgumentException(
+                "firstName expects a string with a minimum length of 1 and a max length of 100, given length: {$length}."
+            );
         }
 
-        if ($ipAddress && !is_string($ipAddress)) {
-            throw new InvalidArgumentException('ipAddress expects a string, ' . gettype($ipAddress) . ' given.');
+        $query = $this->createQuery('/country-of-origin');
+        $query->setBodyParam('first_name', $firstName);
+
+        $result = new Result\CountryOfOrigin();
+        $query->execute($result);
+        return $result;
+    }
+
+    // ========================================================================
+    // VALIDATION HELPERS
+    // ========================================================================
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function sanitizeIpAddress(?string $ipAddress = null): ?string
+    {
+        if ($ipAddress === null || $ipAddress === '') {
+            return null;
         }
 
         if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
@@ -403,17 +405,17 @@ class Client
             return $ipAddress;
         }
 
-        throw new InvalidArgumentException('Invalid ipAddress. Please provide a valid ip address. See https://gender-api.com/en/api-docs/localization-by-ip');
+        throw new InvalidArgumentException(
+            'Invalid ipAddress. Please provide a valid ip address. See https://gender-api.com/en/api-docs/localization-by-ip'
+        );
     }
 
     /**
-     * @param null|string $locale
-     * @return null|string
      * @throws InvalidArgumentException
      */
-    protected function sanitizeLocale($locale = null)
+    protected function sanitizeLocale(?string $locale = null): ?string
     {
-        if (!$locale) {
+        if ($locale === null || $locale === '') {
             return null;
         }
 
@@ -421,52 +423,48 @@ class Client
             return $locale;
         }
 
-        throw new InvalidArgumentException('locale expects a string. A list of valid locales can be found here https://gender-api.com/en/api-docs/localization-by-locale');
+        throw new InvalidArgumentException(
+            'locale expects a string. A list of valid locales can be found here https://gender-api.com/en/api-docs/localization-by-locale'
+        );
     }
 
     /**
-     * @param null|string $emailAddress
-     * @return null|string
      * @throws InvalidArgumentException
      */
-    protected function sanitizeEmailAddress($emailAddress)
+    protected function sanitizeEmailAddress(string $emailAddress): string
     {
-
         if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL) !== false) {
             return $emailAddress;
         }
 
-        throw new InvalidArgumentException('emailAddress expects a string with a valid email address and a minimum length of 1 and a max length of 100, ' . gettype($emailAddress) . ' with a length of ' . strlen($emailAddress) . ' given.');
+        throw new InvalidArgumentException(
+            "emailAddress expects a valid email address, given: {$emailAddress}."
+        );
     }
 
     /**
-     * @throws Client\RuntimeException
-     * @return Query
+     * @throws RuntimeException
      */
-    protected function createQuery()
+    protected function createQuery(string $endpoint, string $method = 'POST'): Query
     {
-        if (!$this->getApiKey()) {
+        if ($this->getApiKey() === null) {
             throw new RuntimeException('API key missing. Please set your API key before calling this method.');
         }
 
-        $query = new Query($this->getApiUrl(), $this->getDownloader());
-        $query->addParam('key', $this->getApiKey());
-        return $query;
+        // Ensure downloader has the API key
+        $this->downloader->setApiKey($this->apiKey);
+
+        return new Query($this->getApiUrl(), $this->getDownloader(), $endpoint, $method);
     }
 
     /**
-     * @param null|string $countryCode
      * @throws InvalidArgumentException
-     * @return string ISO 3166-2 country code
+     * @return string|null ISO 3166-2 country code
      */
-    protected function getCountryCode($country = null)
+    protected function getCountryCode(?string $country = null): ?string
     {
-        if (!$country) {
+        if ($country === null || $country === '') {
             return null;
-        }
-
-        if ($country && !is_string($country)) {
-            throw new InvalidArgumentException('country expects a string, ' . gettype($country) . ' given.');
         }
 
         if ($this->countryList->isValidCountryCode($country)) {
@@ -474,33 +472,12 @@ class Client
         }
 
         $countryCode = $this->countryList->getCountryCodeByName($country);
-        if ($countryCode) {
+        if ($countryCode !== null) {
             return $countryCode;
         }
 
-        throw new InvalidArgumentException('Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.');
+        throw new InvalidArgumentException(
+            'Invalid country code. Please provide a valid country code or country name. See https://gender-api.com/en/api-docs/localization.'
+        );
     }
-
-
-    public function getCountryOfOrigin($firstName)
-    {
-
-        $e = new InvalidArgumentException('firstName expects a string with a minimum length of 1 and a max length of 100, ' . gettype($firstName) . ' with a length of ' . strlen($firstName) . ' given.');
-        if (!is_string($firstName)) {
-            throw $e;
-        }
-
-        if (strlen($firstName) < 1 && strlen($firstName) > 100) {
-            throw $e;
-        }
-
-        $query = $this->createQuery();
-        $query->addParam('name', $firstName);
-        $query->setMethod('get-country-of-origin');
-
-        $result = new Result\CountryOfOrigin();
-        $query->execute($result);
-        return $result;
-    }
-
 }

@@ -1,57 +1,55 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 use GenderApi\Client\Downloader\FileGetContents;
 use GenderApi\Client\Result\SingleName;
 use GenderApiTest\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Class QueryTest
- * @package GenderApi\Client
+ * Tests for Query class (API v2)
  */
 class QueryTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testParams()
+    #[Test]
+    public function testBodyParams(): void
     {
         $downloader = $this->createMock(FileGetContents::class);
-        $query = new Query('/mock-url/', $downloader);
+        $query = new Query('/mock-url/', $downloader, '/gender/by-first-name');
 
-        $query->addParam('key1', 'value1');
-        $query->addParam('key2', 'value2');
+        $query->setBodyParam('first_name', 'Sandra');
+        $query->setBodyParam('country', 'US');
 
-        $this->assertEquals(array(
-            'key1' => 'value1',
-            'key2' => 'value2',
-        ), $query->getParams());
+        $this->assertEquals([
+            'first_name' => 'Sandra',
+            'country' => 'US',
+        ], $query->getBody());
     }
 
-    /**
-     *
-     */
-    public function testMethod()
+    #[Test]
+    public function testEndpoint(): void
     {
         $downloader = $this->createMock(FileGetContents::class);
-        $query = new Query('/mock-url', $downloader);
+        $query = new Query('/mock-url', $downloader, '/gender/by-first-name');
 
-        $this->assertEquals('get', $query->getMethod());
+        $this->assertEquals('/gender/by-first-name', $query->getEndpoint());
 
-        $query->setMethod('get-stats');
-        $this->assertEquals('get-stats', $query->getMethod());
+        $query->setEndpoint('/gender/by-email-address');
+        $this->assertEquals('/gender/by-email-address', $query->getEndpoint());
     }
 
-    public function testExecute()
+    #[Test]
+    public function testExecute(): void
     {
         $downloader = $this->createMock(FileGetContents::class);
-        $downloader->method('download')->with('/mock-url/get?key1=value1')
-            ->will($this->returnValue('{"name":"johanna","gender":"female","samples":15895,"accuracy":98,"duration":"15ms"}'));
-        $query = new Query('/mock-url/', $downloader);
+        $downloader->method('request')
+            ->willReturn('{"input":{"first_name":"johanna"},"details":{"credits_used":1,"duration":"15ms","samples":15895},"result_found":true,"first_name":"Johanna","probability":0.98,"gender":"female"}');
 
-        $query->addParam('key1', 'value1');
+        $query = new Query('/mock-url/', $downloader, '/gender/by-first-name');
+        $query->setBodyParam('first_name', 'johanna');
 
         $result = new SingleName();
         $query->execute($result);
@@ -59,29 +57,33 @@ class QueryTest extends TestCase
         $this->assertEquals('female', $result->getGender());
     }
 
-    public function testExecuteWithError()
+    #[Test]
+    public function testExecuteWithError(): void
     {
-        $this->expectException(\GenderApi\Client\ApiException::class);
-        $downloader = $this->createMock(FileGetContents::class);
-        $downloader->method('download')->with('/mock-url/get?key1=value1')
-            ->will($this->returnValue('{"name":"markus","errno":30,"errmsg":"limit reached. thank you for using our service. please create an account to increase your daily limit and get 500 requests free per month or to buy more requests.","gender":"unknown","samples":0,"accuracy":0,"duration":"120ms"}'));
-        $query = new Query('/mock-url/', $downloader);
+        $this->expectException(ApiException::class);
 
-        $query->addParam('key1', 'value1');
+        $downloader = $this->createMock(FileGetContents::class);
+        $downloader->method('request')
+            ->willReturn('{"errmsg":"limit reached","errno":30}');
+
+        $query = new Query('/mock-url/', $downloader, '/gender/by-first-name');
+        $query->setBodyParam('first_name', 'markus');
 
         $result = new SingleName();
         $query->execute($result);
     }
 
-    public function testExecuteWithInvalidJson()
+    #[Test]
+    public function testExecuteWithInvalidJson(): void
     {
-        $this->expectException(\GenderApi\Client\Exception::class);
-        $downloader = $this->createMock(FileGetContents::class);
-        $downloader->method('download')->with('/mock-url/get?key1=value1')
-            ->will($this->returnValue('503 internal server error'));
-        $query = new Query('/mock-url/', $downloader);
+        $this->expectException(RuntimeException::class);
 
-        $query->addParam('key1', 'value1');
+        $downloader = $this->createMock(FileGetContents::class);
+        $downloader->method('request')
+            ->willReturn('503 internal server error');
+
+        $query = new Query('/mock-url/', $downloader, '/gender/by-first-name');
+        $query->setBodyParam('first_name', 'markus');
 
         $result = new SingleName();
         $query->execute($result);

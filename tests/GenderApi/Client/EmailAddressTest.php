@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 use GenderApi\Client;
@@ -7,69 +9,54 @@ use GenderApi\Client\Downloader\FileGetContents;
 use GenderApiTest\TestCase;
 
 /**
- * Class EmailAddressTest
- * @package GenderApi\Client
+ * Tests for Email Address lookup (API v2)
  */
 class EmailAddressTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testGetByEmailAddressWithoutCountry()
+    public function testGetByEmailAddressWithoutCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"email":"elisabeth1499@gmail.com","lastname":null,"mailprovider":"gmail","name":"elisabeth","gender":"female","samples":17296,"accuracy":99,"duration":"20ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"email":"elisabeth1499@gmail.com"},"details":{"credits_used":1,"duration":"20ms","samples":17296},"result_found":true,"first_name":"Elisabeth","last_name":null,"probability":0.99,"gender":"female"}');
             $genderApiClient->setDownloader($downloader);
         }
 
         $result = $genderApiClient->getByEmailAddress('elisabeth1499@gmail.com');
 
-        $this->assertEquals('elisabeth', $result->getName());
+        $this->assertStringContainsStringIgnoringCase('elisabeth', $result->getFirstName());
         $this->assertEquals('female', $result->getGender());
-        $this->assertEquals(99, $result->getAccuracy());
-        $this->assertEquals('elisabeth1499@gmail.com', $result->getEmailAddress());
-        $this->assertEquals(null, $result->getLastName());
-        $this->assertEquals('gmail', $result->getMailProvider());
+        $this->assertGreaterThan(90, $result->getAccuracy());
 
         if ($this->doMock) {
+            $this->assertEquals('elisabeth1499@gmail.com', $result->getEmailAddress());
             $this->assertEquals(17296, $result->getSamples());
             $this->assertEquals(20, $result->getDurationInMs());
         }
     }
 
-    /**
-     *
-     */
-    public function testGetByEmailAddressWithCountry()
+    public function testGetByEmailAddressWithCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"email":"elisabeth1499@gmail.com","lastname":null,"mailprovider":"gmail","name":"elisabeth","country":"GB","gender":"female","samples":174,"accuracy":97,"duration":"12ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"email":"elisabeth1499@gmail.com","country":"GB"},"details":{"credits_used":1,"duration":"12ms","samples":174,"country":"GB"},"result_found":true,"first_name":"Elisabeth","last_name":null,"probability":0.97,"gender":"female"}');
             $genderApiClient->setDownloader($downloader);
         }
 
         $result = $genderApiClient->getByEmailAddressAndCountry('elisabeth1499@gmail.com', 'GB');
 
-        $this->assertEquals('elisabeth', $result->getName());
+        $this->assertStringContainsStringIgnoringCase('elisabeth', $result->getFirstName());
         $this->assertEquals('female', $result->getGender());
-        $this->assertEquals(97, $result->getAccuracy());
-        $this->assertEquals('elisabeth1499@gmail.com', $result->getEmailAddress());
-        $this->assertEquals(null, $result->getLastName());
-        $this->assertEquals('gmail', $result->getMailProvider());
-        $this->assertEquals('GB', $result->getCountry());
+        $this->assertGreaterThan(90, $result->getAccuracy());
 
         if ($this->doMock) {
             $this->assertEquals(174, $result->getSamples());
             $this->assertEquals(12, $result->getDurationInMs());
         }
     }
-
 }

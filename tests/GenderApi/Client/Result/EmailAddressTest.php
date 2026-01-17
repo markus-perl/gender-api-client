@@ -1,57 +1,34 @@
 <?php
 
-namespace GenderApi\Client\Downloader;
+declare(strict_types=1);
 
-use GenderApi\Client\Result\EmailAddress;
+namespace GenderApi\Client\Result;
+
 use GenderApiTest\TestCase;
 
 /**
- * Class EmailAddressTest
- * @package GenderApi\Client\Downloader
+ * Tests for EmailAddress result parser (API v2)
  */
 class EmailAddressTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testParseResponse()
+    public function testParseResponse(): void
     {
-        $response = json_decode('{"email":"jack.bauer@gmail.com","lastname":"bauer","mailprovider":"gmail","name":"jack","country":"US","gender":"male","samples":10764,"accuracy":99,"duration":"87ms"}');
+        $result = new EmailAddress();
+        $result->parseResponse((object) [
+            'input' => (object) ['email' => 'sandra.miller@gmail.com'],
+            'details' => (object) ['credits_used' => 1, 'duration' => '20ms', 'samples' => 5000],
+            'result_found' => true,
+            'first_name' => 'Sandra',
+            'last_name' => 'Miller',
+            'probability' => 0.98,
+            'gender' => 'female',
+        ]);
 
-        $eaq = new EmailAddress();
-        $eaq->parseResponse($response);
-
-        $this->assertEquals('US', $eaq->getCountry());
-        $this->assertEquals('male', $eaq->getGender());
-        $this->assertEquals(87, $eaq->getDurationInMs());
-        $this->assertEquals('gmail', $eaq->getMailProvider());
-        $this->assertEquals('bauer', $eaq->getLastName());
-        $this->assertEquals('jack', $eaq->getName());
-        $this->assertEquals(10764, $eaq->getSamples());
-        $this->assertEquals(99, $eaq->getAccuracy());
-        $this->assertTrue($eaq->genderFound());
+        $this->assertEquals('Sandra', $result->getFirstName());
+        $this->assertEquals('Miller', $result->getLastName());
+        $this->assertEquals('sandra.miller@gmail.com', $result->getEmailAddress());
+        $this->assertEquals('female', $result->getGender());
+        $this->assertEquals(0.98, $result->getProbability());
+        $this->assertTrue($result->genderFound());
     }
-
-    /**
-     *
-     */
-    public function testParseResponseInvalidName()
-    {
-        $response = json_decode('{"email":"grgrggr3232@gmail.com","lastname":null,"mailprovider":"gmail","name":"grgrggr","country":"US","gender":"unknown","samples":0,"accuracy":0,"duration":"24ms"}');
-
-        $eaq = new EmailAddress();
-        $eaq->parseResponse($response);
-
-        $this->assertEquals('US', $eaq->getCountry());
-        $this->assertEquals('unknown', $eaq->getGender());
-        $this->assertEquals(24, $eaq->getDurationInMs());
-        $this->assertEquals('gmail', $eaq->getMailProvider());
-        $this->assertEquals(null, $eaq->getLastName());
-        $this->assertEquals('grgrggr', $eaq->getName());
-        $this->assertEquals(0, $eaq->getSamples());
-        $this->assertEquals(0, $eaq->getAccuracy());
-        $this->assertFalse($eaq->genderFound());
-    }
-
 }

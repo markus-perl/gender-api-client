@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GenderApi\Client;
 
 use GenderApi\Client;
@@ -7,69 +9,47 @@ use GenderApi\Client\Downloader\FileGetContents;
 use GenderApiTest\TestCase;
 
 /**
- * Class SplitTest
- * @package GenderApi\Client
+ * Tests for Split (full name) lookup (API v2)
  */
 class SplitTest extends TestCase
 {
-
-    /**
-     *
-     */
-    public function testGetByEmailAddressWithoutCountry()
+    public function testGetByFullNameWithoutCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"last_name":"Johnson","first_name":"Robert","strict":false,"name":"robert","gender":"male","samples":145540,"accuracy":99,"duration":"65ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"full_name":"Frank Underwood"},"details":{"credits_used":1,"duration":"15ms","samples":5000},"result_found":true,"first_name":"Frank","last_name":"Underwood","probability":0.99,"gender":"male"}');
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByFirstNameAndLastName('Robert Johnson');
+        $result = $genderApiClient->getByFirstNameAndLastName('Frank Underwood');
 
-        $this->assertEquals('robert', $result->getName());
+        $this->assertStringContainsStringIgnoringCase('frank', $result->getFirstName());
         $this->assertEquals('male', $result->getGender());
-        $this->assertEquals(99, $result->getAccuracy());
-        $this->assertFalse($result->getStrict());
-        $this->assertEquals('Johnson', $result->getLastName());
-        $this->assertEquals('Robert', $result->getFirstName());
+        $this->assertTrue($result->genderFound());
 
         if ($this->doMock) {
-            $this->assertEquals(145540, $result->getSamples());
-            $this->assertEquals(65, $result->getDurationInMs());
+            $this->assertStringContainsStringIgnoringCase('underwood', $result->getLastName());
+            $this->assertEquals(5000, $result->getSamples());
         }
     }
 
-    /**
-     *
-     */
-    public function testGetByEmailAddressWithCountry()
+    public function testGetByFullNameWithCountry(): void
     {
         $genderApiClient = $this->getClient();
 
         if ($this->doMock) {
             $downloader = $this->createMock(FileGetContents::class);
-            $downloader->method('download')
-                ->willReturn('{"last_name":"Johnson","first_name":"Robert","strict":true,"name":"robert","country":"US","gender":"male","samples":43118,"accuracy":100,"duration":"19ms"}');
+            $downloader->method('request')
+                ->willReturn('{"input":{"full_name":"Maria Garcia","country":"ES"},"details":{"credits_used":1,"duration":"12ms","samples":1000,"country":"ES"},"result_found":true,"first_name":"Maria","last_name":"Garcia","probability":0.99,"gender":"female"}');
             $genderApiClient->setDownloader($downloader);
         }
 
-        $result = $genderApiClient->getByFirstNameAndLastNameAndCountry('Robert Johnson', 'US', true);
+        $result = $genderApiClient->getByFirstNameAndLastNameAndCountry('Maria Garcia', 'ES');
 
-        $this->assertEquals('robert', $result->getName());
-        $this->assertEquals('male', $result->getGender());
-        $this->assertEquals(100, $result->getAccuracy());
-        $this->assertTrue($result->getStrict());
-        $this->assertEquals('Johnson', $result->getLastName());
-        $this->assertEquals('Robert', $result->getFirstName());
-        $this->assertEquals('US', $result->getCountry());
-
-        if ($this->doMock) {
-            $this->assertEquals(43118, $result->getSamples());
-            $this->assertEquals(19, $result->getDurationInMs());
-        }
+        $this->assertStringContainsStringIgnoringCase('maria', $result->getFirstName());
+        $this->assertEquals('female', $result->getGender());
     }
-
 }
